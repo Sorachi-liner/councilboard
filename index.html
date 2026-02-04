@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Sapporo Industrial Discharge v71</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000;
+            --iron-panel: #060608;
+            /* 非点灯：上部のハイライトを強め、より金属的な反射をシミュレート */
+            --led-dim-grad: linear-gradient(180deg, #323235 0%, #151517 100%);
+            --glow-core: #ffffff;
+            --glow-main: #ff9500;
+            --glow-outer: #ff4500;
+            --discharge: 0 0 8px var(--glow-core), 0 0 18px var(--glow-main), 0 0 35px var(--glow-outer);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            font-family: 'DotGothic16', sans-serif;
+            background-image: radial-gradient(circle, #111 1px, transparent 1px);
+            background-size: 5px 5px;
+        }
+
+        .bezel {
+            background: var(--iron-panel);
+            box-shadow: inset 0 0 50px #000;
+            margin: 6px;
+            position: relative;
+        }
+
+        /* 7セグ物理設計：反射と形状の再定義 */
+        .digit { position: relative; flex-shrink: 0; margin-right: 0.9vw; } /* 1%の凝縮調整 */
+        .seg { 
+            position: absolute; 
+            background: var(--led-dim-grad);
+            border-radius: 3px;
+            transition: background 0.1s;
+        }
+        .seg-h { width: 74%; height: 14%; left: 13%; }
+        .seg-v { width: 14%; height: 40%; }
+        .seg-a { top: 2%; } .seg-b { top: 6%; right: 2%; } .seg-c { bottom: 6%; right: 2%; }
+        .seg-d { bottom: 2%; } .seg-e { bottom: 6%; left: 2%; } .seg-f { top: 6%; left: 2%; }
+        .seg-g { top: 43%; width: 64%; height: 14%; left: 18%; }
+
+        .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
+
+        /* 時計エリア：10.4vwへ絞り込み */
+        #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #1a1a1a; }
+        .clock-wrapper { display: flex; align-items: flex-end; gap: 0.4vw; }
+        .date-box { display: flex; align-items: flex-end; padding-right: 2.2vw; }
+        .time-box { display: flex; align-items: flex-end; }
+        .sec-box { display: flex; align-items: flex-end; opacity: 0.5; margin-left: 0.8vw; }
+        
+        /* ドット */
+        .dot-unit { width: 1.3vw; height: 1.3vw; background: var(--led-dim-grad); border-radius: 50%; flex-shrink: 0; margin-right: 0.9vw; }
+        .dot-date { margin-bottom: 0.8vh; }
+        .dot-unit.on { background: var(--glow-core); box-shadow: var(--discharge); }
+        .colon-box { display: flex; flex-direction: column; gap: 5.5vh; margin-bottom: 4vh; padding: 0 1.1vw; }
+
+        /* 天気エリア */
+        #mid-section { height: 48vh; display: flex; flex-direction: column; border-top: 6px solid #222; border-bottom: 6px solid #222; margin: 0 6px; }
+        .header-row { display: grid; grid-template-columns: 1fr 2fr 1fr; background: #000; border-bottom: 2px solid #333; }
+        .h-side { text-align: center; color: #888; font-size: 2.8vh; padding: 10px; letter-spacing: 0.6vw; font-weight: bold; }
+        .h-main { color: var(--glow-main); font-size: 2.4vh; text-align: center; display: flex; align-items: center; justify-content: center; border-left: 1px solid #222; border-right: 1px solid #222; }
+
+        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; background: var(--iron-panel); }
+        .card { border-right: 2px solid #333; display: flex; flex-direction: column; }
+        .card:last-child { border-right: none; }
+        .w-content { display: flex; flex-direction: column; flex-grow: 1; padding: 1.5vh 2vw; justify-content: space-between; }
+        
+        .w-visual-box {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 35%; height: 100%; border-right: 1px solid #222;
+        }
+        .w-icon { font-size: 10vh; color: #fff; filter: drop-shadow(0 0 15px var(--glow-main)); }
+        .w-text { font-size: 2vh; color: #888; margin-top: 1vh; font-weight: bold; text-align: center; }
+
+        /* 気温 */
+        .temp-stack { display: flex; flex-direction: column; gap: 3.5vh; align-items: flex-end; width: 65%; }
+        .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; }
+        .label-box { font-size: 2.2vh; font-weight: bold; padding: 3px 12px; min-width: 6vw; text-align: center; border-radius: 2px; margin-right: 1.2vw; }
+        .hi-label { color: #000; background: #ff3333; }
+        .lo-label { color: #000; background: #00eaff; }
+        .temp-digits { display: flex; justify-content: flex-end; }
+
+        /* 降水確率 */
+        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 2px solid #222; gap: 4px; background: #222; }
+        .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; padding: 1.2vh 0; }
+        .prob-label { font-size: 1.8vh; color: #eee; background: #1a1a1a; width: 94%; text-align: center; margin-bottom: 1vh; border: 1px solid #444; font-weight: bold; padding: 3px 0; }
+
+        /* 下段 */
+        #bot-section { height: 10vh; display: flex; align-items: center; overflow: hidden; background: #000; border: 4px solid #1a1a1a; }
+        .ticker { white-space: nowrap; font-size: 6.5vh; color: var(--glow-main); animation: scroll 25s linear infinite; filter: drop-shadow(0 0 10px var(--glow-outer)); }
+        
+        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+
+        #admin { position: fixed; bottom: 20px; right: 20px; z-index: 1000; opacity: 0.4; }
+        #admin button { background: #111; color: var(--glow-main); border: 1px solid #444; padding: 8px 16px; cursor: pointer; font-family: 'DotGothic16'; border-radius: 4px; }
+
+        /* サイズ定義：ここが「あと1%」のキモ */
+        .d-lg { width: 10.4vw; height: 26vh; } 
+        .d-sm { width: 3.0vw; height: 9.2vh; }
+        .d-temp { width: 3.4vw; height: 10vh; } 
+        .d-prob { width: 1.7vw; height: 4vh; }
+    </style>
+</head>
+<body>
+
+    <div id="top-section" class="bezel">
+        <div class="clock-wrapper">
+            <div id="date-group" class="date-box"></div>
+            <div id="time-group" class="time-box"></div>
+            <div id="sec-group" class="sec-box"></div>
+        </div>
+    </div>
+
+    <div id="mid-section" class="bezel">
+        <div class="header-row">
+            <div class="h-side">TODAY</div>
+            <div class="h-main" id="update-label">SAPPORO DISCHARGE PANEL</div>
+            <div class="h-side">TOMORROW</div>
+        </div>
+        <div class="weather-grid" id="weatherGrid"></div>
+    </div>
+
+    <div id="bot-section" class="bezel">
+        <div class="ticker" id="ticker-text">【V71 PRECISION-FOCUS】「あと1%」の凝縮調整を時計ユニットに適用。非点灯時の光沢コントラストを強化。</div>
+    </div>
+
+    <div id="admin"><button onclick="editTicker()">EDIT</button></div>
+
+    <script>
+        const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
+
+        function build(cls) {
+            let h = `<div class="digit ${cls}">`;
+            ['a','b','c','d','e','f','g'].forEach(s => h += `<div class="seg seg-${s} ${['a','d','g'].includes(s)?'seg-h':'seg-v'}"></div>`);
+            return h + `</div>`;
+        }
+
+        function draw(parent, str) {
+            if (!parent) return;
+            const ds = parent.querySelectorAll('.digit');
+            const ts = str.padStart(ds.length, ' ');
+            for(let i=0; i<ds.length; i++) {
+                const pat = MAP[ts[i]] || MAP[' '];
+                ds[i].querySelectorAll('.seg').forEach((s, idx) => { s.classList.toggle('on', !!pat[idx]); });
+            }
+        }
+
+        function tick() {
+            const n = new Date();
+            const Y=String(n.getFullYear()), M=String(n.getMonth()+1).padStart(2,'0'), D=String(n.getDate()).padStart(2,'0');
+            const h=String(n.getHours()).padStart(2,'0'), m=String(n.getMinutes()).padStart(2,'0'), s=String(n.getSeconds()).padStart(2,'0');
+            draw(document.getElementById('date-group'), Y+M+D);
+            draw(document.getElementById('time-group'), h+m);
+            draw(document.getElementById('sec-group'), s);
+            document.querySelectorAll('.dot-colon').forEach(d => d.classList.toggle('on', n.getSeconds() % 2 === 0));
+        }
+
+        async function fetchWeather() {
+            try {
+                const res = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
+                const data = await res.json();
+                const pubTime = new Date(data[0].reportDatetime).toLocaleString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+                document.getElementById('update-label').innerText = `SAPPORO: ${pubTime} UPDATED`;
+                
+                const grid = document.getElementById('weatherGrid');
+                grid.innerHTML = "";
+                const popData = data[0].timeSeries[1];
+                const tempData = data[0].timeSeries[2];
+
+                for(let i=0; i<2; i++) {
+                    const weatherText = data[0].timeSeries[0].areas[0].weathers[i];
+                    const icon = (weatherText.includes('雪')) ? '❄' : (weatherText.includes('雨')) ? '☔' : (weatherText.includes('曇')) ? '☁' : '☀';
+                    const dStr = new Date(new Date().setDate(new Date().getDate() + i)).toISOString().split('T')[0];
+                    
+                    let maxT = "  ", minT = "  ";
+                    tempData.timeDefines.forEach((t, idx) => {
+                        if(t.startsWith(dStr)) {
+                            const val = String(tempData.areas[0].temps[idx]);
+                            if(new Date(t).getHours() >= 9 && new Date(t).getHours() <= 18) maxT = val; else minT = val;
+                        }
+                    });
+
+                    let pops = ["--", "--", "--", "--"];
+                    popData.timeDefines.forEach((t, idx) => {
+                        if(t.startsWith(dStr)) {
+                            const hr = new Date(t).getHours();
+                            const val = String(popData.areas[0].pops[idx]);
+                            if(hr === 0) pops[0]=val; else if(hr === 6) pops[1]=val; else if(hr === 12) pops[2]=val; else if(hr === 18) pops[3]=val;
+                        }
+                    });
+
+                    grid.innerHTML += `
+                        <div class="card">
+                            <div class="w-content">
+                                <div style="display:flex; flex-grow:1; align-items:center;">
+                                    <div class="w-visual-box"><div class="w-icon">${icon}</div><div class="w-text">${weatherText}</div></div>
+                                    <div class="temp-stack">
+                                        <div class="temp-line"><div class="label-box hi-label">HI</div><div class="temp-digits" id="hi-${i}">${build('d-temp').repeat(3)}</div></div>
+                                        <div class="temp-line"><div class="label-box lo-label">LO</div><div class="temp-digits" id="lo-${i}">${build('d-temp').repeat(3)}</div></div>
+                                    </div>
+                                </div>
+                                <div class="w-prob-grid">
+                                    ${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}H</span><div id="p-row-${i}-${pi}" style="display:flex;">${build('d-prob')}${build('d-prob')}</div></div>`).join('')}
+                                </div>
+                            </div>
+                        </div>`;
+                    
+                    setTimeout(() => {
+                        draw(document.getElementById(`hi-${i}`), maxT);
+                        draw(document.getElementById(`lo-${i}`), minT);
+                        pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p));
+                    }, 50);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function editTicker() {
+            const m = prompt("EDIT TICKER:", document.getElementById('ticker-text').innerText);
+            if(m) document.getElementById('ticker-text').innerText = m;
+        }
+
+        window.onload = () => {
+            document.getElementById('date-group').innerHTML = build('d-sm').repeat(4)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
+            document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-colon"></div><div class="dot-unit dot-colon"></div></div>'+build('d-lg').repeat(2);
+            document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
+            tick(); setInterval(tick, 1000);
+            fetchWeather(); setInterval(fetchWeather, 3600000);
+        };
+    </script>
+</body>
+</html>
