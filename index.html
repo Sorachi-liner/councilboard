@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v101</title>
+    <title>Sapporo Industrial Discharge v102</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -30,7 +30,6 @@
         }
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
-
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 2px; }
         .seg-h { width: 74%; height: 12%; left: 13%; } 
@@ -106,7 +105,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V101 DATA-FIX】今日と明日の情報の入れ替わりを修正。気象庁データの配列インデックスを厳密化。</div>
+        <div class="ticker" id="ticker-text">【V102 ROBUST-DATA】時刻ベースのデータマッピングにより表示のズレを解消。欠損データは自動的に [--] で補完。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
@@ -135,12 +134,13 @@
             draw(document.getElementById('time-group'), h+m);
             draw(document.getElementById('sec-group'), s);
         }
+
         async function fetchWeather() {
             try {
                 const res = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
                 const data = await res.json();
-                const pubTime = new Date(data[0].reportDatetime).toLocaleString('ja-JP', {hour:'2-digit', minute:'2-digit'});
-                document.getElementById('update-label').innerText = `SAPPORO: ${pubTime} UPDATED`;
+                const reportDate = new Date(data[0].reportDatetime);
+                document.getElementById('update-label').innerText = `SAPPORO: ${reportDate.getHours().toString().padStart(2,'0')}:${reportDate.getMinutes().toString().padStart(2,'0')} UPDATED`;
                 
                 const weatherData = data[0].timeSeries[0].areas[0];
                 const popSeries = data[0].timeSeries[1].areas[0];
@@ -152,30 +152,41 @@
                 grid.innerHTML = "";
                 
                 for(let i=0; i<2; i++) {
-                    const weatherText = weatherData.weathers[i];
-                    const icon = (weatherText.includes('雪')) ? '❄' : (weatherText.includes('雨')) ? '☔' : (weatherText.includes('曇')) ? '☁' : '☀';
-                    
-                    const targetDate = new Date();
-                    targetDate.setDate(targetDate.getDate() + i);
-                    const dStr = targetDate.toISOString().split('T')[0];
+                    const target = new Date();
+                    target.setDate(target.getDate() + i);
+                    const tY = target.getFullYear(), tM = target.getMonth(), tD = target.getDate();
 
-                    // 気温抽出 (i=0: 今日, i=1: 明日)
+                    // 天気文字列
+                    let weatherText = "---";
+                    const wTimes = data[0].timeSeries[0].timeDefines;
+                    wTimes.forEach((tw, idx) => {
+                        const d = new Date(tw);
+                        if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) weatherText = weatherData.weathers[idx];
+                    });
+                    const icon = (weatherText.includes('雪')) ? '❄' : (weatherText.includes('雨')) ? '☔' : (weatherText.includes('曇')) ? '☁' : (weatherText==="---") ? "?" : '☀';
+
+                    // 気温
                     let maxT = "--", minT = "--";
-                    tempTimes.forEach((t, idx) => {
-                        if(t.startsWith(dStr)) {
+                    tempTimes.forEach((tt, idx) => {
+                        const d = new Date(tt);
+                        if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) {
                             const val = tempSeries.temps[idx];
-                            const hr = new Date(t).getHours();
+                            const hr = d.getHours();
                             if(hr >= 9 && hr <= 18) maxT = val; else minT = val;
                         }
                     });
 
-                    // 降水確率抽出
+                    // 降水確率 (0, 6, 12, 18時基準でマッピング)
                     let pops = ["--", "--", "--", "--"];
-                    popTimes.forEach((t, idx) => {
-                        if(t.startsWith(dStr)) {
-                            const hr = new Date(t).getHours();
+                    popTimes.forEach((tp, idx) => {
+                        const d = new Date(tp);
+                        if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) {
+                            const hr = d.getHours();
                             const val = popSeries.pops[idx];
-                            if(hr === 0) pops[0]=val; else if(hr === 6) pops[1]=val; else if(hr === 12) pops[2]=val; else if(hr === 18) pops[3]=val;
+                            if(hr === 0) pops[0]=val;
+                            else if(hr === 6) pops[1]=val;
+                            else if(hr === 12) pops[2]=val;
+                            else if(hr === 18) pops[3]=val;
                         }
                     });
 
@@ -202,6 +213,7 @@
                 }
             } catch (e) { console.error(e); }
         }
+
         function editTicker() { const m = prompt("EDIT TICKER:", document.getElementById('ticker-text').innerText); if(m) document.getElementById('ticker-text').innerText = m; }
         window.onload = () => {
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(4)+'<div class="dot-unit on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit on"></div>'+build('d-sm').repeat(2);
