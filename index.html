@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v103</title>
+    <title>Sapporo Industrial Discharge v104</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -39,8 +39,9 @@
         .seg-g { top: 44%; width: 64%; height: 12%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
-        #top-section { height: 42vh; display: flex; align-items: center; justify-content: center; border: 4px solid #1a1a1a; }
-        #mid-section { height: 44vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
+        /* セクション比率の変更: 時計を5%縮小(37vh)、天気を5%拡大(49vh) */
+        #top-section { height: 37vh; display: flex; align-items: center; justify-content: center; border: 4px solid #1a1a1a; }
+        #mid-section { height: 49vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #1a1a1a; }
 
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.93); } 
@@ -59,8 +60,6 @@
         .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 2px; background: #333; transform: translateX(-50%); }
 
         .w-visual { width: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        
-        /* アイコンとテキストの行間を 2.5vh に拡大 */
         .w-icon { font-size: 8vh; color: #fff; line-height: 0.8; filter: drop-shadow(0 0 12px var(--glow-main)); margin-bottom: 2.5vh; }
         .w-text { font-size: var(--unified-ui-font); color: #fff; font-weight: bold; text-align: center; width: 90%; }
 
@@ -78,8 +77,8 @@
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); animation: scroll 28s linear infinite; line-height: 12vh; }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-110%); } }
 
-        .d-lg { width: 12vw; height: 36vh; } 
-        .d-sm { width: 2.8vw; height: 8.5vh; } 
+        .d-lg { width: 12vw; height: 32vh; } /* 縦幅に合わせて微調整 */
+        .d-sm { width: 2.8vw; height: 8vh; } 
         .d-temp { width: 3.2vw; height: 9.5vh; } 
         .d-prob { width: 2.2vw; height: 5.5vh; } 
 
@@ -107,7 +106,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V103 VERTICAL-SPACING】天気アイコンとテキストの間の余白を拡大。視覚的な干渉を排除。</div>
+        <div class="ticker" id="ticker-text">【V104 VERTICAL-BALANCED】時計セクションを5%縮小。天気表示の空間を広げ、垂直方向の視認性をさらに最適化。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
