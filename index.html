@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v100</title>
+    <title>Sapporo Industrial Discharge v101</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -31,7 +31,6 @@
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
 
-        /* 7セグ：字間を 1.2vw に微調整 (さらに1%縮小) */
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 2px; }
         .seg-h { width: 74%; height: 12%; left: 13%; } 
@@ -45,7 +44,6 @@
         #mid-section { height: 44vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #1a1a1a; }
 
-        /* 時計：スケールを 0.93 に微増させ、凝縮された数字を際立たせる */
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.93); } 
         .dot-unit { width: 1.4vw; height: 1.4vw; background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
         .colon-box { display: flex; flex-direction: column; gap: 8.5vh; margin-bottom: 7vh; padding: 0 1.3vw; }
@@ -108,7 +106,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V100 DENSITY-MAX】字間を 1.2vw に最適化。デジタル表示の凝縮感を極め、プロ仕様のインストゥルメントパネルを再現。</div>
+        <div class="ticker" id="ticker-text">【V101 DATA-FIX】今日と明日の情報の入れ替わりを修正。気象庁データの配列インデックスを厳密化。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
@@ -123,7 +121,7 @@
         function draw(parent, str) {
             if (!parent) return;
             const ds = parent.querySelectorAll('.digit');
-            const ts = str.padStart(ds.length, ' ');
+            const ts = String(str).padStart(ds.length, ' ');
             for(let i=0; i<ds.length; i++) {
                 const pat = MAP[ts[i]] || MAP[' '];
                 ds[i].querySelectorAll('.seg').forEach((s, idx) => { s.classList.toggle('on', !!pat[idx]); });
@@ -143,27 +141,44 @@
                 const data = await res.json();
                 const pubTime = new Date(data[0].reportDatetime).toLocaleString('ja-JP', {hour:'2-digit', minute:'2-digit'});
                 document.getElementById('update-label').innerText = `SAPPORO: ${pubTime} UPDATED`;
-                const popData = data[0].timeSeries[1], tempData = data[0].timeSeries[2];
+                
+                const weatherData = data[0].timeSeries[0].areas[0];
+                const popSeries = data[0].timeSeries[1].areas[0];
+                const popTimes = data[0].timeSeries[1].timeDefines;
+                const tempSeries = data[0].timeSeries[2].areas[0];
+                const tempTimes = data[0].timeSeries[2].timeDefines;
+
                 const grid = document.getElementById('weatherGrid');
                 grid.innerHTML = "";
+                
                 for(let i=0; i<2; i++) {
-                    const weatherText = data[0].timeSeries[0].areas[0].weathers[i];
+                    const weatherText = weatherData.weathers[i];
                     const icon = (weatherText.includes('雪')) ? '❄' : (weatherText.includes('雨')) ? '☔' : (weatherText.includes('曇')) ? '☁' : '☀';
-                    const dStr = new Date(new Date().setDate(new Date().getDate() + i)).toISOString().split('T')[0];
+                    
+                    const targetDate = new Date();
+                    targetDate.setDate(targetDate.getDate() + i);
+                    const dStr = targetDate.toISOString().split('T')[0];
+
+                    // 気温抽出 (i=0: 今日, i=1: 明日)
                     let maxT = "--", minT = "--";
-                    tempData.timeDefines.forEach((t, idx) => {
+                    tempTimes.forEach((t, idx) => {
                         if(t.startsWith(dStr)) {
-                            const val = String(tempData.areas[0].temps[idx]);
-                            if(new Date(t).getHours() >= 9 && new Date(t).getHours() <= 18) maxT = val; else minT = val;
+                            const val = tempSeries.temps[idx];
+                            const hr = new Date(t).getHours();
+                            if(hr >= 9 && hr <= 18) maxT = val; else minT = val;
                         }
                     });
+
+                    // 降水確率抽出
                     let pops = ["--", "--", "--", "--"];
-                    popData.timeDefines.forEach((t, idx) => {
+                    popTimes.forEach((t, idx) => {
                         if(t.startsWith(dStr)) {
-                            const hr = new Date(t).getHours(), v = String(popData.areas[0].pops[idx]);
-                            if(hr===0) pops[0]=v; else if(hr===6) pops[1]=v; else if(hr===12) pops[2]=v; else if(hr===18) pops[3]=v;
+                            const hr = new Date(t).getHours();
+                            const val = popSeries.pops[idx];
+                            if(hr === 0) pops[0]=val; else if(hr === 6) pops[1]=val; else if(hr === 12) pops[2]=val; else if(hr === 18) pops[3]=val;
                         }
                     });
+
                     grid.innerHTML += `
                         <div class="card">
                             <div class="w-main-row">
@@ -178,7 +193,12 @@
                                 ${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}
                             </div>
                         </div>`;
-                    setTimeout(() => { draw(document.getElementById(`hi-${i}`), maxT); draw(document.getElementById(`lo-${i}`), minT); pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p)); }, 50);
+                    
+                    setTimeout(() => {
+                        draw(document.getElementById(`hi-${i}`), maxT);
+                        draw(document.getElementById(`lo-${i}`), minT);
+                        pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p));
+                    }, 50);
                 }
             } catch (e) { console.error(e); }
         }
