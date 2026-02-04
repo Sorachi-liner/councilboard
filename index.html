@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v102</title>
+    <title>Sapporo Industrial Discharge v103</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -59,7 +59,9 @@
         .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 2px; background: #333; transform: translateX(-50%); }
 
         .w-visual { width: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .w-icon { font-size: 8vh; color: #fff; line-height: 0.8; filter: drop-shadow(0 0 12px var(--glow-main)); margin-bottom: 0.5vh; }
+        
+        /* アイコンとテキストの行間を 2.5vh に拡大 */
+        .w-icon { font-size: 8vh; color: #fff; line-height: 0.8; filter: drop-shadow(0 0 12px var(--glow-main)); margin-bottom: 2.5vh; }
         .w-text { font-size: var(--unified-ui-font); color: #fff; font-weight: bold; text-align: center; width: 90%; }
 
         .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1vh; align-items: center; justify-content: center; }
@@ -105,7 +107,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V102 ROBUST-DATA】時刻ベースのデータマッピングにより表示のズレを解消。欠損データは自動的に [--] で補完。</div>
+        <div class="ticker" id="ticker-text">【V103 VERTICAL-SPACING】天気アイコンとテキストの間の余白を拡大。視覚的な干渉を排除。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
@@ -156,7 +158,6 @@
                     target.setDate(target.getDate() + i);
                     const tY = target.getFullYear(), tM = target.getMonth(), tD = target.getDate();
 
-                    // 天気文字列
                     let weatherText = "---";
                     const wTimes = data[0].timeSeries[0].timeDefines;
                     wTimes.forEach((tw, idx) => {
@@ -165,7 +166,6 @@
                     });
                     const icon = (weatherText.includes('雪')) ? '❄' : (weatherText.includes('雨')) ? '☔' : (weatherText.includes('曇')) ? '☁' : (weatherText==="---") ? "?" : '☀';
 
-                    // 気温
                     let maxT = "--", minT = "--";
                     tempTimes.forEach((tt, idx) => {
                         const d = new Date(tt);
@@ -176,7 +176,6 @@
                         }
                     });
 
-                    // 降水確率 (0, 6, 12, 18時基準でマッピング)
                     let pops = ["--", "--", "--", "--"];
                     popTimes.forEach((tp, idx) => {
                         const d = new Date(tp);
