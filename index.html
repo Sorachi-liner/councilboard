@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v105</title>
+    <title>Sapporo Industrial Discharge v106</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -39,18 +39,18 @@
         .seg-g { top: 44%; width: 64%; height: 12%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
-        /* 時計エリアの高さを維持し、中身を縮小して余白を確保 */
         #top-section { height: 42vh; display: flex; align-items: center; justify-content: center; border: 4px solid #1a1a1a; }
         #mid-section { height: 44vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #1a1a1a; }
 
-        /* スケールを 0.88 に下げてセクション内の余白を創出 */
-        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.88); } 
+        /* スケールを 0.92 に拡大（横幅4%UP相当） */
+        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.92); } 
         
-        /* 点の大きさを修正 */
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
-        .dot-date { width: 0.8vw; height: 0.8vw; margin-bottom: 2vh; } /* 日付用：小さく */
-        .dot-time { width: 1.8vw; height: 1.8vw; } /* 時刻用：大きく */
+        
+        /* 日付ドット：サイズを維持しつつ下揃えに調整 */
+        .dot-date { width: 0.8vw; height: 0.8vw; margin-bottom: 0.5vh; } 
+        .dot-time { width: 1.8vw; height: 1.8vw; } 
         
         .colon-box { display: flex; flex-direction: column; gap: 8.5vh; margin-bottom: 7vh; padding: 0 1.5vw; }
 
@@ -96,9 +96,9 @@
 
     <div id="top-section" class="bezel">
         <div class="clock-wrapper">
-            <div id="date-group" style="display:flex; align-items:flex-end; padding-right:2vw;"></div>
+            <div id="date-group" style="display:flex; align-items:flex-end; padding-right:2.5vw;"></div>
             <div id="time-group" style="display:flex; align-items:flex-end;"></div>
-            <div id="sec-group" style="display:flex; align-items:flex-end; margin-left:0.5vw;"></div>
+            <div id="sec-group" style="display:flex; align-items:flex-end; margin-left:0.8vw;"></div>
         </div>
     </div>
 
@@ -112,7 +112,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V105 SPACE-OPTIMIZED】時計を 0.88 倍に縮小し、セクション内に余白を確保。日付ドットと時刻コロンの比率を修正。</div>
+        <div class="ticker" id="ticker-text">【V106 WIDTH-EXPANDED】時計のスケールを 0.92 に拡大し重厚感を追求。日付ドットを下揃えに変更し、視認性を最適化。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
@@ -220,7 +220,6 @@
 
         function editTicker() { const m = prompt("EDIT TICKER:", document.getElementById('ticker-text').innerText); if(m) document.getElementById('ticker-text').innerText = m; }
         window.onload = () => {
-            // 日付ドットと時刻コロンのクラスを分離
             document.getElementById('date-group').innerHTML = 
                 build('d-sm').repeat(4)+'<div class="dot-unit dot-date on"></div>'+
                 build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+
