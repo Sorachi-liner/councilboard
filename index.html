@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v132</title>
+    <title>Sapporo Industrial VFD v133</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
-        /* CSSは v131 を完全継承 */
+        /* CSS設定は v132 を継承 (輝度・サイズ共に最適化済み) */
         :root {
             --bg-color: #000;
             --iron-panel: #060608;
@@ -32,8 +32,7 @@
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
         #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
-        .d-lg { width: 13.9vw; height: 32vh; } 
-        .d-sm { width: 3.63vw; height: 12vh; }  
+        .d-lg { width: 13.9vw; height: 32vh; } .d-sm { width: 3.63vw; height: 12vh; }  
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
         .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
@@ -86,7 +85,6 @@
 
     <script>
         const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
-        const STORAGE_KEY = 'vfd_multi_ticker_v127';
 
         function build(cls) {
             let h = `<div class="digit ${cls}">`;
@@ -130,7 +128,7 @@
                     });
                     const icon = weatherText.includes('雪') ? '❄️' : weatherText.includes('雨') ? '☔' : weatherText.includes('曇') ? '☁️' : '☀️';
 
-                    // 気温取得ロジックの厳密化
+                    // 気象庁仕様に基づく厳密な気温抽出
                     let maxT = "--", minT = "--";
                     tempTimes.forEach((tt, idx) => {
                         const d = new Date(tt);
@@ -138,10 +136,10 @@
                             const val = tempSeries.temps[idx];
                             if(val !== undefined && val !== null) {
                                 const hr = d.getHours();
-                                // 最高気温(昼間)
+                                // 9時-18時のデータがあれば最高気温
                                 if(hr >= 9 && hr <= 18) maxT = val;
-                                // 最低気温(深夜・早朝)
-                                else if(hr < 9 || hr > 18) minT = val;
+                                // 0時-9時のデータがあれば最低気温（5時発表の「当日」分はここが空になる）
+                                else if(hr >= 0 && hr < 9) minT = val;
                             }
                         }
                     });
@@ -176,7 +174,7 @@
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
             tick(); setInterval(tick, 1000); fetchWeather(); setInterval(fetchWeather, 3600000);
             const ticker = document.getElementById('ticker-text');
-            ticker.innerText = "VFD SYSTEM OPERATIONAL // SAPPORO WEATHER STATION DATA LINK ACTIVE";
+            ticker.innerText = "VFD SYSTEM v133 // METEOROLOGICAL DATA SYNCHRONIZED // SAPPORO STATION";
             ticker.style.animation = `ticker-anim 25s linear infinite`;
         };
     </script>
