@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v108</title>
+    <title>Sapporo Industrial Discharge v109</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -43,10 +43,11 @@
         #mid-section { height: 44vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #1a1a1a; }
 
-        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.9); } 
+        /* スケールを 0.86 に縮小（縦横の縮小指示を反映） */
+        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
         
-        .d-lg { width: 13.5vw; height: 38vh; } /* メイン時刻 */
-        .d-sm { width: 3.2vw; height: 14vh; }  /* 日付・秒 */
+        .d-lg { width: 13.5vw; height: 38vh; } 
+        .d-sm { width: 3.2vw; height: 14vh; }  
         
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
         .dot-date { width: 0.8vw; height: 0.8vw; margin-bottom: 0.5vh; } 
@@ -110,7 +111,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V108 DATE-SHORTENED】日付をYYMMDD形式（6桁）に変更。時計セクションの密度をさらに最適化。</div>
+        <div class="ticker" id="ticker-text">【V109 COMPACT-REFINED】時計を縦6%・横2%縮小し、セクション内に落ち着いた余白を再構築。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
@@ -133,7 +134,6 @@
         }
         function tick() {
             const n = new Date();
-            // 西暦の下2桁を取得
             const YY=String(n.getFullYear()).slice(-2), M=String(n.getMonth()+1).padStart(2,'0'), D=String(n.getDate()).padStart(2,'0');
             const h=String(n.getHours()).padStart(2,'0'), m=String(n.getMinutes()).padStart(2,'0'), s=String(n.getSeconds()).padStart(2,'0');
             draw(document.getElementById('date-group'), YY+M+D);
@@ -218,7 +218,6 @@
         }
 
         window.onload = () => {
-            // 日付を6桁に変更 (YY.MM.DD)
             document.getElementById('date-group').innerHTML = 
                 build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+
                 build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+
