@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v121</title>
+    <title>Sapporo Industrial VFD v122</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -10,7 +10,7 @@
             --iron-panel: #060608;
             --led-dim-grad: linear-gradient(180deg, #2a2a2d 0%, #111113 100%);
             --glow-core: #fffef0;
-            --glow-main: #ff8c00; /* オレンジ */
+            --glow-main: #ff8c00; 
             --glow-outer: #ff2200;
             --discharge: 0 0 8px var(--glow-core), 0 0 15px var(--glow-main), 0 0 30px var(--glow-outer);
             --base-ui-size: 2.3vh; 
@@ -62,16 +62,16 @@
         .w-main-row { height: 22vh; display: flex; align-items: center; position: relative; }
         .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 1px; background: #222; transform: translateX(-50%); }
 
-        /* 天気セクションのモダン化 */
+        /* 天気セクション */
         .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .w-icon-box { 
-            height: 8vh; width: 8vh; 
-            margin-bottom: 2.5vh; /* 行間を広げる */
-            filter: drop-shadow(0 0 10px var(--glow-main)); 
+        .w-icon { 
+            height: 8vh; font-size: 7vh; 
+            margin-bottom: 2.5vh; 
             display: flex; align-items: center; justify-content: center;
+            /* 絵文字をネオン風に光らせる設定 */
+            color: transparent;
+            text-shadow: 0 0 0 white, 0 0 10px var(--glow-main), 0 0 20px var(--glow-outer);
         }
-        .w-icon-box svg { width: 100%; height: 100%; fill: var(--glow-core); }
-
         .w-text { 
             height: 7.5vh; font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; 
             padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center;
@@ -79,10 +79,9 @@
 
         .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
-        
         .label-box { font-size: var(--base-ui-size); font-weight: bold; padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
-        .hi-label { color: #000; background: var(--glow-main); } /* オレンジ背景 */
-        .lo-label { color: #000; background: #fff; } /* 白背景 */
+        .hi-label { color: #000; background: var(--glow-main); } 
+        .lo-label { color: #000; background: #fff; } 
 
         .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); flex-grow: 1; background: #000; }
         .prob-main-title { background: #111; color: #ccc; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.6em; }
@@ -123,20 +122,14 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V121 MODERN-VFD】モダンアイコンへの刷新、ラベル配色の変更、そして秒速192pxの等速スクロール。</div>
+        <div class="ticker" id="ticker-text">【V122 EMOJI-NEON】OS標準の絵文字をネオン風に発光処理。秒速192pxの等速スクロールを適用。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
 
     <script>
         const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
-        const ICONS = {
-            sun: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`,
-            cloud: `<svg viewBox="0 0 24 24"><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5 0-2.3-1.7-4.1-3.9-4.5-.6-3.4-3.5-6-7.1-6-2.7 0-5.1 1.4-6.4 3.6-2.5.5-4.6 2.7-4.6 5.4C0 16.2 2.8 19 6.2 19h11.3z"/></svg>`,
-            rain: `<svg viewBox="0 0 24 24"><path d="M17.5 14c2.5 0 4.5-2 4.5-4.5 0-2.3-1.7-4.1-3.9-4.5-.6-3.4-3.5-6-7.1-6-2.7 0-5.1 1.4-6.4 3.6-2.5.5-4.6 2.7-4.6 5.4C0 11.2 2.8 14 6.2 14h11.3z"/><path d="M8 16l-1 4m5-4l-1 4m5-4l-1 4"/></svg>`,
-            snow: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M12 1v22M1 12h22M4 4l16 16M20 4L4 20"/></svg>`
-        };
-
+        
         function build(cls) {
             let h = `<div class="digit ${cls}">`;
             ['a','b','c','d','e','f','g'].forEach(s => h += `<div class="seg seg-${s} ${['a','d','g'].includes(s)?'seg-h':'seg-v'}"></div>`);
@@ -181,7 +174,8 @@
                         const d = new Date(tw); if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) weatherText = weatherData.weathers[idx];
                     });
                     
-                    const icon = weatherText.includes('雪') ? ICONS.snow : weatherText.includes('雨') ? ICONS.rain : weatherText.includes('曇') ? ICONS.cloud : ICONS.sun;
+                    // 絵文字での対応
+                    const icon = weatherText.includes('雪') ? '❄️' : weatherText.includes('雨') ? '☔' : weatherText.includes('曇') ? '☁️' : '☀️';
                     
                     let maxT = "--", minT = "--";
                     tempTimes.forEach((tt, idx) => {
@@ -202,7 +196,7 @@
                             <div class="w-main-row">
                                 <div class="v-sep-float"></div>
                                 <div class="w-visual">
-                                    <div class="w-icon-box">${icon}</div>
+                                    <div class="w-icon">${icon}</div>
                                     <div class="w-text">${weatherText}</div>
                                 </div>
                                 <div class="w-stats">
@@ -231,7 +225,7 @@
         function initTicker() {
             const ticker = document.getElementById('ticker-text');
             const totalDist = window.innerWidth + ticker.offsetWidth;
-            const duration = totalDist / 192; // 秒速 192px
+            const duration = totalDist / 192; 
             ticker.style.animation = 'none';
             ticker.offsetHeight; 
             ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
