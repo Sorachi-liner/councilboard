@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v114</title>
+    <title>Sapporo Industrial VFD v115</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -34,7 +34,6 @@
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         
-        /* 7Seg VFD Logic */
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
         .seg-h { width: 74%; height: 10%; left: 13%; } 
@@ -44,7 +43,6 @@
         .seg-g { top: 45%; width: 64%; height: 10%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
-        /* レイアウト比率固定用 */
         #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #151515; }
@@ -71,7 +69,13 @@
 
         .w-visual { width: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .w-icon { font-size: 8vh; line-height: 0.8; filter: drop-shadow(0 0 10px var(--glow-main)); margin-bottom: 2vh; }
-        .w-text { font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; }
+        
+        /* 天気テキストのX軸パティング拡張 */
+        .w-text { 
+            font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; 
+            padding: 0 1.5vw; 
+            line-height: 1.2;
+        }
 
         .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
@@ -79,24 +83,20 @@
         .hi-label { color: #000; background: #ff3b3b; }
         .lo-label { color: #000; background: #00d9ff; }
 
-        /* 降水確率：完全対称三層構造 */
         .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); flex-grow: 1; background: #000; }
         .prob-main-title {
-            background: #111; color: #ccc; /* 白に近いグレー */
+            background: #111; color: #ccc; 
             font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh;
             text-align: center; letter-spacing: 0.6em;
         }
         .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
         .prob-item { 
             background: #000; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-evenly; /* 垂直方向に均等配置 */
+            align-items: center; justify-content: space-evenly; 
             border-right: 1px solid #111; padding: 0.5vh 0;
         }
         
-        .prob-label { 
-            font-size: var(--base-ui-size); color: #ffffff; /* 純白 */
-            width: 100%; text-align: center; font-weight: bold;
-        }
+        .prob-label { font-size: var(--base-ui-size); color: #ffffff; width: 100%; text-align: center; font-weight: bold; }
         .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); animation: scroll 28s linear infinite; line-height: 12vh; text-shadow: 0 0 10px var(--glow-outer); }
@@ -104,6 +104,15 @@
 
         .d-temp { width: 2.8vw; height: 8vh; } 
         .d-prob { width: 2.2vw; height: 5vh; } 
+
+        /* Admin UI */
+        #admin { position: fixed; bottom: 15px; right: 15px; z-index: 9999; opacity: 0.4; transition: opacity 0.3s; }
+        #admin:hover { opacity: 1; }
+        #admin button { 
+            background: #111; color: var(--glow-main); border: 2px solid #444; 
+            padding: 6px 14px; font-family: 'DotGothic16'; cursor: pointer; 
+            border-radius: 4px; font-size: 1.5vh; letter-spacing: 0.1em;
+        }
     </style>
 </head>
 <body>
@@ -126,8 +135,10 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V114 RATIO-OPTIMIZED】1920×1200対応。降水確率エリアを「見出し(淡白)・時間(純白)・数値(琥珀)」の完全三層構造に再構築。</div>
+        <div class="ticker" id="ticker-text">【V115 ADMIN-RESTORED】EDITボタンを復活。天気テキストのパティングを調整し、1920×1200環境でのレイアウト耐性を強化。</div>
     </div>
+
+    <div id="admin"><button onclick="editTicker()">EDIT</button></div>
 
     <script>
         const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
@@ -231,6 +242,11 @@
                     }, 50);
                 }
             } catch (e) { console.error(e); }
+        }
+
+        function editTicker() {
+            const m = prompt("EDIT TICKER:", document.getElementById('ticker-text').innerText);
+            if(m) document.getElementById('ticker-text').innerText = m;
         }
 
         window.onload = () => {
