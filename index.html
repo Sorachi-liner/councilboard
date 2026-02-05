@@ -2,21 +2,20 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v112</title>
+    <title>Sapporo Industrial VFD v113</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #000;
             --iron-panel: #060608;
             --led-dim-grad: linear-gradient(180deg, #2a2a2d 0%, #111113 100%);
-            --glow-core: #fffef0; /* 蛍光管の芯の白 */
-            --glow-main: #ff8c00; /* 鮮やかな琥珀 */
-            --glow-outer: #ff2200; /* 外縁のガス発光 */
+            --glow-core: #fffef0;
+            --glow-main: #ff8c00;
+            --glow-outer: #ff2200;
             --discharge: 0 0 8px var(--glow-core), 0 0 15px var(--glow-main), 0 0 30px var(--glow-outer);
             
-            /* フォントサイズ統一設定 */
             --base-ui-size: 2.4vh; 
-            --sub-ui-size: 1.68vh; /* 70% size */
+            --sub-ui-size: 1.68vh; 
             --header-font-size: 3vh; 
             
             --border-main: 2px solid #333;
@@ -36,8 +35,6 @@
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
-        
-        /* 5%圧縮されたVFDセグメント */
         .seg-h { width: 74%; height: 10%; left: 13%; } 
         .seg-v { width: 15%; height: 38%; } 
         .seg-a { top: 2%; } .seg-b { top: 6%; right: 2%; } .seg-c { bottom: 6%; right: 2%; }
@@ -50,7 +47,7 @@
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #151515; }
 
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.88); } 
-        .d-lg { width: 13.8vw; height: 34vh; } /* 1%縮小調整 */
+        .d-lg { width: 13.8vw; height: 34vh; } 
         .d-sm { width: 3.2vw; height: 12.5vh; }  
         
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
@@ -79,21 +76,25 @@
         .hi-label { color: #000; background: #ff3b3b; }
         .lo-label { color: #000; background: #00d9ff; }
 
-        /* 降水確率：余白削除とフォントサイズ統合 */
+        /* 降水確率：余白削除の再定義 */
         .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); height: 16vh; }
         .prob-main-title {
             background: #111; color: #777; font-size: var(--sub-ui-size);
             height: 3vh; line-height: 3vh; text-align: center;
-            letter-spacing: 0.6em; border-bottom: 1px solid #222;
+            letter-spacing: 0.6em; margin-bottom: 0; /* 余白排除 */
         }
-        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; background: #1a1a1a; }
+        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; background: #000; border-top: 1px solid #222; }
         .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #111; }
+        
         .prob-label { 
-            font-size: var(--base-ui-size); color: #888; 
-            width: 100%; text-align: center; padding: 2px 0;
+            font-size: var(--base-ui-size); 
+            color: #ffffff; /* 白色に変更 */
+            width: 100%; text-align: center; 
+            padding: 2px 0;
             background: #0a0a0a;
+            margin-bottom: 0; /* 余白排除 */
         }
-        .prob-digits-row { display: flex; justify-content: center; width: 100%; padding-top: 2px; }
+        .prob-digits-row { display: flex; justify-content: center; width: 100%; padding-top: 1px; }
 
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); animation: scroll 28s linear infinite; line-height: 12vh; text-shadow: 0 0 10px var(--glow-outer); }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-110%); } }
@@ -122,7 +123,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V112 VFD-EMULATION】文字をY軸圧縮し、放電管の質感を再現。フォントサイズを統合し、降水確率エリアの余白を完全排除。</div>
+        <div class="ticker" id="ticker-text">【V113 SOLID-INTERFACE】降水確率エリアの余白を完全削除。時間軸をホワイトに変更し、視認性と密度を最大化。</div>
     </div>
 
     <script>
