@@ -255,4 +255,11 @@
 
         window.onload = () => {
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
-            document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div>
+            document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
+            document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
+            tick(); setInterval(tick, 1000); fetchWeather(); setInterval(fetchWeather, 3600000);
+            updateTickerAnimation();
+        };
+    </script>
+</body>
+</html>
