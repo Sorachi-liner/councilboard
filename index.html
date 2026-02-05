@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v107</title>
+    <title>Sapporo Industrial Discharge v108</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -45,7 +45,6 @@
 
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.9); } 
         
-        /* 比率 1:2.7 を適用したサイズ設定 */
         .d-lg { width: 13.5vw; height: 38vh; } /* メイン時刻 */
         .d-sm { width: 3.2vw; height: 14vh; }  /* 日付・秒 */
         
@@ -95,9 +94,9 @@
 
     <div id="top-section" class="bezel">
         <div class="clock-wrapper">
-            <div id="date-group" style="display:flex; align-items:flex-end; padding-right:3vw;"></div>
+            <div id="date-group" style="display:flex; align-items:flex-end; padding-right:4vw;"></div>
             <div id="time-group" style="display:flex; align-items:flex-end;"></div>
-            <div id="sec-group" style="display:flex; align-items:flex-end; margin-left:1vw;"></div>
+            <div id="sec-group" style="display:flex; align-items:flex-end; margin-left:1.5vw;"></div>
         </div>
     </div>
 
@@ -111,7 +110,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V107 RATIO-EXPANDED】時刻と日付の比率を約1:2.7に再定義。中央の時刻を圧倒的なスケールで配置。</div>
+        <div class="ticker" id="ticker-text">【V108 DATE-SHORTENED】日付をYYMMDD形式（6桁）に変更。時計セクションの密度をさらに最適化。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
@@ -134,9 +133,10 @@
         }
         function tick() {
             const n = new Date();
-            const Y=String(n.getFullYear()), M=String(n.getMonth()+1).padStart(2,'0'), D=String(n.getDate()).padStart(2,'0');
+            // 西暦の下2桁を取得
+            const YY=String(n.getFullYear()).slice(-2), M=String(n.getMonth()+1).padStart(2,'0'), D=String(n.getDate()).padStart(2,'0');
             const h=String(n.getHours()).padStart(2,'0'), m=String(n.getMinutes()).padStart(2,'0'), s=String(n.getSeconds()).padStart(2,'0');
-            draw(document.getElementById('date-group'), Y+M+D);
+            draw(document.getElementById('date-group'), YY+M+D);
             draw(document.getElementById('time-group'), h+m);
             draw(document.getElementById('sec-group'), s);
         }
@@ -218,8 +218,9 @@
         }
 
         window.onload = () => {
+            // 日付を6桁に変更 (YY.MM.DD)
             document.getElementById('date-group').innerHTML = 
-                build('d-sm').repeat(4)+'<div class="dot-unit dot-date on"></div>'+
+                build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+
                 build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+
                 build('d-sm').repeat(2);
             document.getElementById('time-group').innerHTML = 
