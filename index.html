@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v118</title>
+    <title>Sapporo Industrial VFD v119</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,11 +13,9 @@
             --glow-main: #ff8c00;
             --glow-outer: #ff2200;
             --discharge: 0 0 8px var(--glow-core), 0 0 15px var(--glow-main), 0 0 30px var(--glow-outer);
-            
             --base-ui-size: 2.3vh; 
             --sub-ui-size: 1.6vh; 
             --header-font-size: 3vh; 
-            
             --border-main: 2px solid #333;
             --section-gap: 6px solid #1a1a1a;
         }
@@ -44,7 +42,7 @@
 
         #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
-        #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #151515; overflow: hidden; }
+        #bot-section { height: 12vh; display: flex; align-items: center; justify-content: flex-start; background: #000; border: 4px solid #151515; overflow: hidden; position: relative; }
 
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.88); } 
         .d-lg { width: 13.8vw; height: 32vh; } 
@@ -83,22 +81,25 @@
         .prob-label { font-size: var(--base-ui-size); color: #ffffff; width: 100%; text-align: center; font-weight: bold; }
         .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
-        /* スクロールアニメーション（1920pxあたり15秒基準） */
-        .ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
+        /* スクロール設定 */
         .ticker { 
-            display: inline-block;
+            white-space: nowrap; 
             font-size: 6vh; color: var(--glow-main); line-height: 12vh;
             text-shadow: 0 0 10px var(--glow-outer); 
-            padding-left: 100vw; /* 画面右端からスタートさせる */
-            animation: vfd-scroll linear infinite;
+            position: absolute;
+            left: 0;
+            will-change: transform;
         }
-        @keyframes vfd-scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+        @keyframes ticker-anim {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100%); }
         }
 
         #admin { position: fixed; bottom: 15px; right: 15px; z-index: 9999; opacity: 0.4; }
         #admin button { background: #111; color: var(--glow-main); border: 2px solid #444; padding: 6px 14px; font-family: 'DotGothic16'; cursor: pointer; border-radius: 4px; font-size: 1.5vh; }
+
+        .d-temp { width: 2.8vw; height: 8vh; } 
+        .d-prob { width: 2.2vw; height: 5vh; } 
     </style>
 </head>
 <body>
@@ -121,20 +122,20 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker-wrap">
-            <div class="ticker" id="ticker-text">【V118 STABLE】気象データ表示をv115準拠で復旧。スクロールは1920px/15s基準の等速移動を適用。</div>
-        </div>
+        <div class="ticker" id="ticker-text">【V119 DATA-SYNC】気温・降水確率の描画プロセスを再同期。スクロール速度を秒速128px（1920px/15s）に固定。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
 
     <script>
         const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
+        
         function build(cls) {
             let h = `<div class="digit ${cls}">`;
             ['a','b','c','d','e','f','g'].forEach(s => h += `<div class="seg seg-${s} ${['a','d','g'].includes(s)?'seg-h':'seg-v'}"></div>`);
             return h + `</div>`;
         }
+
         function draw(parent, str) {
             if (!parent) return;
             const ds = parent.querySelectorAll('.digit');
@@ -144,6 +145,7 @@
                 ds[i].querySelectorAll('.seg').forEach((s, idx) => { s.classList.toggle('on', !!pat[idx]); });
             }
         }
+
         function tick() {
             const n = new Date();
             const YY=String(n.getFullYear()).slice(-2), M=String(n.getMonth()+1).padStart(2,'0'), D=String(n.getDate()).padStart(2,'0');
@@ -167,27 +169,28 @@
                 const tempTimes = data[0].timeSeries[2].timeDefines;
 
                 const grid = document.getElementById('weatherGrid');
-                grid.innerHTML = "";
+                let html = "";
                 
+                const dayData = [];
+
                 for(let i=0; i<2; i++) {
                     const target = new Date();
                     target.setDate(target.getDate() + i);
                     const tY = target.getFullYear(), tM = target.getMonth(), tD = target.getDate();
+                    
                     let weatherText = "---";
-                    const wTimes = data[0].timeSeries[0].timeDefines;
-                    wTimes.forEach((tw, idx) => {
+                    data[0].timeSeries[0].timeDefines.forEach((tw, idx) => {
                         const d = new Date(tw);
                         if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) weatherText = weatherData.weathers[idx];
                     });
-                    const icon = (weatherText.includes('雪')) ? '❄' : (weatherText.includes('雨')) ? '☔' : (weatherText.includes('曇')) ? '☁' : (weatherText==="---") ? "?" : '☀';
+                    const icon = (weatherText.includes('雪')) ? '❄' : (weatherText.includes('雨')) ? '☔' : (weatherText.includes('曇')) ? '☁' : '☀';
 
                     let maxT = "--", minT = "--";
                     tempTimes.forEach((tt, idx) => {
                         const d = new Date(tt);
                         if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) {
                             const val = tempSeries.temps[idx];
-                            const hr = d.getHours();
-                            if(hr >= 9 && hr <= 18) maxT = val; else minT = val;
+                            if(d.getHours() >= 9 && d.getHours() <= 18) maxT = val; else minT = val;
                         }
                     });
 
@@ -197,14 +200,13 @@
                         if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) {
                             const hr = d.getHours();
                             const val = popSeries.pops[idx];
-                            if(hr === 0) pops[0]=val;
-                            else if(hr === 6) pops[1]=val;
-                            else if(hr === 12) pops[2]=val;
-                            else if(hr === 18) pops[3]=val;
+                            if(hr === 0) pops[0]=val; else if(hr === 6) pops[1]=val; else if(hr === 12) pops[2]=val; else if(hr === 18) pops[3]=val;
                         }
                     });
 
-                    grid.innerHTML += `
+                    dayData.push({maxT, minT, pops});
+
+                    html += `
                         <div class="card">
                             <div class="w-main-row">
                                 <div class="v-sep-float"></div>
@@ -221,30 +223,38 @@
                                 </div>
                             </div>
                         </div>`;
-                    
-                    setTimeout(() => {
-                        draw(document.getElementById(`hi-${i}`), maxT);
-                        draw(document.getElementById(`lo-${i}`), minT);
-                        pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p));
-                    }, 50);
                 }
+                grid.innerHTML = html;
+
+                // 重要：DOM更新直後に描画を実行
+                setTimeout(() => {
+                    dayData.forEach((d, i) => {
+                        draw(document.getElementById(`hi-${i}`), d.maxT);
+                        draw(document.getElementById(`lo-${i}`), d.minT);
+                        d.pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p));
+                    });
+                }, 100);
+
             } catch (e) { console.error(e); }
         }
 
-        // スクロール速度の再計算
-        function updateTicker() {
+        function initTicker() {
             const ticker = document.getElementById('ticker-text');
-            const totalWidth = ticker.offsetWidth; // 100vw + テキスト自体の幅
-            // 1920pxを15秒で進む = 128px/秒
-            const duration = totalWidth / 128;
-            ticker.style.animationDuration = `${duration}s`;
+            const textWidth = ticker.offsetWidth;
+            const screenWidth = window.innerWidth;
+            const totalDist = screenWidth + textWidth;
+            // 1920px を 15秒で移動 = 128px/s
+            const duration = totalDist / 128;
+            ticker.style.animation = 'none';
+            ticker.offsetHeight; 
+            ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
         }
 
         function editTicker() {
             const m = prompt("EDIT TICKER:", document.getElementById('ticker-text').innerText);
             if(m) {
                 document.getElementById('ticker-text').innerText = m;
-                updateTicker();
+                initTicker();
             }
         }
 
@@ -252,9 +262,10 @@
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
-            tick(); setInterval(tick, 1000); fetchWeather(); setInterval(fetchWeather, 3600000);
-            updateTicker();
-            window.addEventListener('resize', updateTicker);
+            tick(); setInterval(tick, 1000); 
+            fetchWeather(); setInterval(fetchWeather, 3600000);
+            initTicker();
+            window.addEventListener('resize', initTicker);
         };
     </script>
 </body>
