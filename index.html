@@ -2,22 +2,25 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v111</title>
+    <title>Sapporo Industrial VFD v112</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #000;
             --iron-panel: #060608;
-            --led-dim-grad: linear-gradient(180deg, #323235 0%, #151517 100%);
-            --glow-core: #ffffff;
-            --glow-main: #ff9500;
-            --glow-outer: #ff4500;
-            --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 40px var(--glow-outer);
-            --unified-ui-font: 2.1vh; 
+            --led-dim-grad: linear-gradient(180deg, #2a2a2d 0%, #111113 100%);
+            --glow-core: #fffef0; /* 蛍光管の芯の白 */
+            --glow-main: #ff8c00; /* 鮮やかな琥珀 */
+            --glow-outer: #ff2200; /* 外縁のガス発光 */
+            --discharge: 0 0 8px var(--glow-core), 0 0 15px var(--glow-main), 0 0 30px var(--glow-outer);
+            
+            /* フォントサイズ統一設定 */
+            --base-ui-size: 2.4vh; 
+            --sub-ui-size: 1.68vh; /* 70% size */
             --header-font-size: 3vh; 
-            --border-main: 2px solid #444;
-            --border-sub: 1px solid #333;
-            --section-gap: 6px solid #222;
+            
+            --border-main: 2px solid #333;
+            --section-gap: 6px solid #1a1a1a;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,87 +30,76 @@
             overflow: hidden;
             display: flex; flex-direction: column;
             font-family: 'DotGothic16', sans-serif;
+            color: #fff;
         }
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
-        .seg { position: absolute; background: var(--led-dim-grad); border-radius: 2px; }
+        .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
         
-        /* 扁平なセグメント比率 */
+        /* 5%圧縮されたVFDセグメント */
         .seg-h { width: 74%; height: 10%; left: 13%; } 
-        .seg-v { width: 16%; height: 38%; } 
-        
+        .seg-v { width: 15%; height: 38%; } 
         .seg-a { top: 2%; } .seg-b { top: 6%; right: 2%; } .seg-c { bottom: 6%; right: 2%; }
         .seg-d { bottom: 2%; } .seg-e { bottom: 6%; left: 2%; } .seg-f { top: 6%; left: 2%; }
         .seg-g { top: 45%; width: 64%; height: 10%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
-        #top-section { height: 42vh; display: flex; align-items: center; justify-content: center; border: 4px solid #1a1a1a; }
+        #top-section { height: 42vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         #mid-section { height: 44vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
-        #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #1a1a1a; }
+        #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #151515; }
 
-        /* スケールを 0.88 に戻し横幅を確保 */
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.88); } 
-        
-        .d-lg { width: 14vw; height: 34vh; } /* 横幅を2%分拡大 */
-        .d-sm { width: 3.3vw; height: 12.5vh; }  
+        .d-lg { width: 13.8vw; height: 34vh; } /* 1%縮小調整 */
+        .d-sm { width: 3.2vw; height: 12.5vh; }  
         
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
-        .dot-date { width: 0.8vw; height: 0.8vw; margin-bottom: 0.5vh; } 
-        .dot-time { width: 2.2vw; height: 2.2vw; } 
-        
+        .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
+        .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 8vh; margin-bottom: 6vh; padding: 0 2vw; }
 
         .h-row-unified { display: flex; height: 5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
-        .h-25, .h-25-right { width: 25%; color: #fff; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .h-50 { width: 50%; color: var(--glow-main); font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #080808; }
+        .h-25, .h-25-right { width: 25%; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .h-50 { width: 50%; color: var(--glow-main); font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; text-shadow: 0 0 10px var(--glow-outer); }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; }
         .card:last-child { border-right: none; }
         
-        .w-main-row { display: flex; flex-grow: 1; align-items: center; position: relative; padding: 0; }
-        .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 2px; background: #333; transform: translateX(-50%); }
+        .w-main-row { display: flex; flex-grow: 1; align-items: center; position: relative; }
+        .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 1px; background: #222; transform: translateX(-50%); }
 
         .w-visual { width: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .w-icon { font-size: 8vh; color: #fff; line-height: 0.8; filter: drop-shadow(0 0 12px var(--glow-main)); margin-bottom: 2.5vh; }
-        .w-text { font-size: var(--unified-ui-font); color: #fff; font-weight: bold; text-align: center; width: 90%; }
+        .w-icon { font-size: 8vh; line-height: 0.8; filter: drop-shadow(0 0 10px var(--glow-main)); margin-bottom: 2vh; }
+        .w-text { font-size: var(--base-ui-size); font-weight: bold; text-align: center; width: 90%; color: #eee; }
 
-        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1vh; align-items: center; justify-content: center; }
-        .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1vw; }
-        .label-box { font-size: var(--unified-ui-font); font-weight: bold; padding: 1px 4px; min-width: 4vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
-        .hi-label { color: #000; background: #ff3333; }
-        .lo-label { color: #000; background: #00eaff; }
+        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
+        .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
+        .label-box { font-size: var(--base-ui-size); font-weight: bold; padding: 1px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
+        .hi-label { color: #000; background: #ff3b3b; }
+        .lo-label { color: #000; background: #00d9ff; }
 
-        /* 統合された降水確率セクション */
-        .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); height: 16vh; position: relative; }
-        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; background: #222; }
-        .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: var(--border-sub); position: relative; }
-        
-        /* ラベルを一体化：ヘッダー的な配置 */
-        .prob-label { 
-            font-size: 1.5vh; color: #fff; background: #222; 
-            width: 100%; text-align: center; 
-            border-bottom: 1px solid #444; margin-bottom: 4px; 
-            padding-top: 2px;
-        }
-        /* 「降水確率」の小見出しをグリッドの左端にオーバーレイ、またはヘッダーとして表現 */
+        /* 降水確率：余白削除とフォントサイズ統合 */
+        .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); height: 16vh; }
         .prob-main-title {
-            background: #1a1a1a; color: #888; font-size: 1.4vh;
-            height: 2.5vh; line-height: 2.5vh; text-align: center;
-            letter-spacing: 0.8em; border-bottom: 1px solid #333;
+            background: #111; color: #777; font-size: var(--sub-ui-size);
+            height: 3vh; line-height: 3vh; text-align: center;
+            letter-spacing: 0.6em; border-bottom: 1px solid #222;
         }
+        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; background: #1a1a1a; }
+        .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #111; }
+        .prob-label { 
+            font-size: var(--base-ui-size); color: #888; 
+            width: 100%; text-align: center; padding: 2px 0;
+            background: #0a0a0a;
+        }
+        .prob-digits-row { display: flex; justify-content: center; width: 100%; padding-top: 2px; }
 
-        .prob-digits-row { display: flex; justify-content: center; width: 100%; }
-
-        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); animation: scroll 28s linear infinite; line-height: 12vh; }
+        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); animation: scroll 28s linear infinite; line-height: 12vh; text-shadow: 0 0 10px var(--glow-outer); }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-110%); } }
 
-        .d-temp { width: 3.2vw; height: 9.5vh; } 
-        .d-prob { width: 2.2vw; height: 5.5vh; } 
-
-        #admin { position: fixed; bottom: 15px; right: 15px; z-index: 9999; opacity: 0.5; }
-        #admin button { background: #111; color: var(--glow-main); border: 2px solid #444; padding: 6px 12px; font-family: 'DotGothic16'; cursor: pointer; border-radius: 4px; }
+        .d-temp { width: 2.8vw; height: 8vh; } 
+        .d-prob { width: 2.2vw; height: 5vh; } 
     </style>
 </head>
 <body>
@@ -130,10 +122,8 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V111 INTEGRATED-HEADER】時計を横方向に2%拡大。降水確率ラベルと時間軸を一体化し、情報の密度を向上。</div>
+        <div class="ticker" id="ticker-text">【V112 VFD-EMULATION】文字をY軸圧縮し、放電管の質感を再現。フォントサイズを統合し、降水確率エリアの余白を完全排除。</div>
     </div>
-
-    <div id="admin"><button onclick="editTicker()">EDIT</button></div>
 
     <script>
         const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
@@ -240,13 +230,8 @@
         }
 
         window.onload = () => {
-            document.getElementById('date-group').innerHTML = 
-                build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+
-                build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+
-                build('d-sm').repeat(2);
-            document.getElementById('time-group').innerHTML = 
-                build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+
-                build('d-lg').repeat(2);
+            document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
+            document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
             tick(); setInterval(tick, 1000); fetchWeather(); setInterval(fetchWeather, 3600000);
         };
