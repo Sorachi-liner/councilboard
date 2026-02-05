@@ -2,17 +2,19 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v129</title>
+    <title>Sapporo Industrial VFD v130</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #000;
             --iron-panel: #060608;
-            --led-dim-grad: linear-gradient(180deg, #2a2a2d 0%, #111113 100%);
-            --glow-core: #fffef0;
-            --glow-main: #ff8c00; 
-            --glow-outer: #ff2200;
-            --discharge: 0 0 8px var(--glow-core), 0 0 15px var(--glow-main), 0 0 30px var(--glow-outer);
+            /* 消灯セグメントのコントラスト強化 */
+            --led-dim-grad: linear-gradient(180deg, #1a1a1c 0%, #080809 100%);
+            --glow-core: #ffffff;
+            --glow-main: #ff9d00; 
+            --glow-outer: #ff3300;
+            /* 輝度向上：ブラー半径とレイヤーの強化 */
+            --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer), 0 0 50px rgba(255, 34, 0, 0.4);
             --base-ui-size: 2.3vh; 
             --sub-ui-size: 1.6vh; 
             --header-font-size: 3vh; 
@@ -32,7 +34,7 @@
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
-        .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
+        .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; transition: background 0.1s; }
         .seg-h { width: 74%; height: 10%; left: 13%; } 
         .seg-v { width: 15%; height: 38%; } 
         .seg-a { top: 2%; } .seg-b { top: 6%; right: 2%; } .seg-c { bottom: 6%; right: 2%; }
@@ -44,39 +46,36 @@
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: flex-start; background: #000; border: 4px solid #151515; overflow: hidden; position: relative; }
 
-        /* 時計レイアウト：スケール維持 */
-        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.85); } 
+        /* 全体スケール：+1%拡大 (0.85 -> 0.86) */
+        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
         
-        /* 時刻：13.9vw */
+        /* 日付・時刻・秒の比率維持 */
         .d-lg { width: 13.9vw; height: 32vh; } 
-        /* 日付・秒：さらに5%拡張 (3.46 -> 3.63) */
         .d-sm { width: 3.63vw; height: 12vh; }  
         
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
         .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
-        
-        /* 時刻中央のコロン余白 */
         .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
 
+        /* 天気カード (v123スタイル維持) */
         .h-row-unified { display: flex; height: 5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
         .h-25, .h-25-right { width: 25%; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .h-50 { width: 50%; color: var(--glow-main); font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; text-shadow: 0 0 10px var(--glow-outer); }
-        
+        .h-50 { width: 50%; color: var(--glow-main); font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; text-shadow: 0 0 15px var(--glow-outer); }
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
         .w-main-row { height: 22vh; display: flex; align-items: center; position: relative; }
         .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 1px; background: #222; transform: translateX(-50%); }
 
         .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .w-icon { height: 8vh; font-size: 7vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 10px var(--glow-main), 0 0 20px var(--glow-outer); }
+        .w-icon { height: 8vh; font-size: 7vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
         .w-text { height: 7.5vh; font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
 
         .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
         .label-box { font-size: var(--base-ui-size); font-weight: bold; padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
-        .hi-label { color: #000; background: var(--glow-main); } 
-        .lo-label { color: #000; background: #fff; } 
+        .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
+        .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
 
         .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); flex-grow: 1; background: #000; }
         .prob-main-title { background: #111; color: #ccc; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.6em; }
@@ -85,7 +84,7 @@
         .prob-label { font-size: var(--base-ui-size); color: #ffffff; width: 100%; text-align: center; font-weight: bold; }
         .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
-        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 10px var(--glow-outer); position: absolute; left: 0; will-change: transform; }
+        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; will-change: transform; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
         #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0; transition: 0.4s; padding: 40px; }
