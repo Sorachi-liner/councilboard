@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v127</title>
+    <title>Sapporo Industrial VFD v128</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -30,7 +30,6 @@
             color: #fff;
         }
 
-        /* VFD 構造 */
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
@@ -45,35 +44,30 @@
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: flex-start; background: #000; border: 4px solid #151515; overflow: hidden; position: relative; }
 
-        /* 時計 */
-        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.88); } 
-        .d-lg { width: 13.8vw; height: 32vh; } 
-        .d-sm { width: 3.2vw; height: 12vh; }  
+        /* 時計レイアウト調整 */
+        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.85); } 
+        
+        /* 時刻：3%縮小 (14.35 -> 13.9) */
+        .d-lg { width: 13.9vw; height: 32vh; } 
+        /* 日付・秒：4%拡張 (3.33 -> 3.46) */
+        .d-sm { width: 3.46vw; height: 12vh; }  
+        
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
         .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
-        .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 2vw; }
+        .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.5vw; }
 
-        /* 天気カード (v123 デザイン) */
         .h-row-unified { display: flex; height: 5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
         .h-25, .h-25-right { width: 25%; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .h-50 { width: 50%; color: var(--glow-main); font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; text-shadow: 0 0 10px var(--glow-outer); }
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
-        .card:last-child { border-right: none; }
         .w-main-row { height: 22vh; display: flex; align-items: center; position: relative; }
         .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 1px; background: #222; transform: translateX(-50%); }
 
         .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .w-icon { 
-            height: 8vh; font-size: 7vh; margin-bottom: 2.5vh; 
-            display: flex; align-items: center; justify-content: center;
-            color: transparent; text-shadow: 0 0 0 white, 0 0 10px var(--glow-main), 0 0 20px var(--glow-outer);
-        }
-        .w-text { 
-            height: 7.5vh; font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; 
-            padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center;
-        }
+        .w-icon { height: 8vh; font-size: 7vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 10px var(--glow-main), 0 0 20px var(--glow-outer); }
+        .w-text { height: 7.5vh; font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
 
         .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
@@ -88,26 +82,13 @@
         .prob-label { font-size: var(--base-ui-size); color: #ffffff; width: 100%; text-align: center; font-weight: bold; }
         .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
-        /* スクロール */
-        .ticker { 
-            white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh;
-            text-shadow: 0 0 10px var(--glow-outer); position: absolute; left: 0; will-change: transform;
-        }
+        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 10px var(--glow-outer); position: absolute; left: 0; will-change: transform; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        /* EDITボタン (ホバーで出現) */
-        #admin { 
-            position: fixed; bottom: 20px; right: 20px; z-index: 100; 
-            opacity: 0; transition: all 0.4s ease; padding: 40px;
-        }
+        #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0; transition: 0.4s; padding: 40px; }
         #admin:hover { opacity: 1; transform: scale(1.2); } 
-        #admin button { 
-            background: #000; color: var(--glow-main); border: 3px solid var(--glow-main); 
-            padding: 10px 22px; font-family: 'DotGothic16'; cursor: pointer; border-radius: 6px; 
-            font-size: 2.2vh; font-weight: bold; box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
-        }
+        #admin button { background: #000; color: var(--glow-main); border: 3px solid var(--glow-main); padding: 10px 22px; font-family: 'DotGothic16'; cursor: pointer; border-radius: 6px; font-size: 2.2vh; font-weight: bold; box-shadow: 0 0 15px rgba(255, 140, 0, 0.4); }
 
-        /* 入力パネル */
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
         #editor-panel { background: #111; border: 4px solid #444; width: 90%; max-width: 600px; padding: 30px; box-shadow: 0 0 50px #000; }
         .input-row { margin-bottom: 15px; display: grid; grid-template-columns: 80px 1fr 1.5fr; gap: 10px; align-items: center; }
@@ -127,7 +108,7 @@
 
     <div id="top-section" class="bezel">
         <div class="clock-wrapper">
-            <div id="date-group" style="display:flex; align-items:flex-end; padding-right:4vw;"></div>
+            <div id="date-group" style="display:flex; align-items:flex-end; padding-right:3.5vw;"></div>
             <div id="time-group" style="display:flex; align-items:flex-end;"></div>
             <div id="sec-group" style="display:flex; align-items:flex-end; margin-left:1.5vw;"></div>
         </div>
@@ -142,20 +123,17 @@
         <div class="weather-grid" id="weatherGrid"></div>
     </div>
 
-    <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text"></div>
-    </div>
+    <div id="bot-section" class="bezel"><div class="ticker" id="ticker-text"></div></div>
 
     <div id="admin"><button onclick="openEditor()">EDIT</button></div>
 
     <div id="overlay">
         <div id="editor-panel">
-            <h2 style="color:white; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">MESSAGE EDITOR (3 SETS)</h2>
-            <div class="input-row"><label></label><span style="color:#666; font-size: 1.4vh;">TITLE</span><span style="color:#666; font-size: 1.4vh;">BODY</span></div>
-            <div class="input-row"><label>SET 1</label><input type="text" id="t1" placeholder="タイトル"><input type="text" id="b1" placeholder="本文"></div>
-            <div class="input-row"><label>SET 2</label><input type="text" id="t2" placeholder="タイトル"><input type="text" id="b2" placeholder="本文"></div>
-            <div class="input-row"><label>SET 3</label><input type="text" id="t3" placeholder="タイトル"><input type="text" id="b3" placeholder="本文"></div>
-            <p style="color:#666; font-size:1.2vh; margin-top:10px;">※タイトルと本文が両方空のセットは表示されません。</p>
+            <h2 style="color:white; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">MESSAGE EDITOR</h2>
+            <div class="input-row"><label></label><span style="color:#666; font-size:1.4vh;">TITLE</span><span style="color:#666; font-size:1.4vh;">BODY</span></div>
+            <div class="input-row"><label>SET 1</label><input type="text" id="t1"><input type="text" id="b1"></div>
+            <div class="input-row"><label>SET 2</label><input type="text" id="t2"><input type="text" id="b2"></div>
+            <div class="input-row"><label>SET 3</label><input type="text" id="t3"><input type="text" id="b3"></div>
             <div class="panel-btns">
                 <button class="p-btn cancel-btn" onclick="closeEditor()">CANCEL</button>
                 <button class="p-btn save-btn" onclick="saveData()">SAVE & APPLY</button>
@@ -223,23 +201,7 @@
                         }
                     });
                     dayData.push({maxT, minT, pops});
-                    html += `
-                        <div class="card">
-                            <div class="w-main-row">
-                                <div class="v-sep-float"></div>
-                                <div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weatherText}</div></div>
-                                <div class="w-stats">
-                                    <div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>
-                                    <div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>
-                                </div>
-                            </div>
-                            <div class="prob-section">
-                                <div class="prob-main-title">降水確率</div>
-                                <div class="w-prob-grid">
-                                    ${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}
-                                </div>
-                            </div>
-                        </div>`;
+                    html += `<div class="card"><div class="w-main-row"><div class="v-sep-float"></div><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weatherText}</div></div><div class="w-stats"><div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div><div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div></div></div><div class="prob-section"><div class="prob-main-title">降水確率</div><div class="w-prob-grid">${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}</div></div></div>`;
                 }
                 grid.innerHTML = html;
                 setTimeout(() => {
@@ -253,7 +215,7 @@
 
         function openEditor() {
             const stored = localStorage.getItem(STORAGE_KEY);
-            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"SAPPORO INDUSTRIAL VFD v127 OPERATIONAL."}, {t:"",b:""}, {t:"",b:""}];
+            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"VFD OPERATIONAL"}, {t:"",b:""}, {t:"",b:""}];
             for(let i=1; i<=3; i++) {
                 document.getElementById(`t${i}`).value = data[i-1]?.t || "";
                 document.getElementById(`b${i}`).value = data[i-1]?.b || "";
@@ -265,16 +227,15 @@
             const newData = [];
             for(let i=1; i<=3; i++) { newData.push({ t: document.getElementById(`t${i}`).value, b: document.getElementById(`b${i}`).value }); }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
-            closeEditor();
-            initTicker();
+            closeEditor(); initTicker();
         }
 
         function initTicker() {
             const ticker = document.getElementById('ticker-text');
             const stored = localStorage.getItem(STORAGE_KEY);
-            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"SAPPORO INDUSTRIAL VFD v127 OPERATIONAL."}];
+            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"VFD OPERATIONAL"}];
             let combined = data.map(item => (item.t || item.b) ? `${item.t ? `【${item.t}】` : ""}${item.b}` : "").filter(s => s).join(" 　 ");
-            ticker.innerText = combined || "--- NO DATA ---";
+            ticker.innerText = combined || "---";
             const duration = (window.innerWidth + ticker.offsetWidth) / 192; 
             ticker.style.animation = 'none'; ticker.offsetHeight; 
             ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
