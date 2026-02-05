@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial Discharge v109</title>
+    <title>Sapporo Industrial Discharge v110</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,28 +32,31 @@
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 2px; }
-        .seg-h { width: 74%; height: 12%; left: 13%; } 
-        .seg-v { width: 16%; height: 40%; }
+        
+        /* セグメント比率の変更：高さを圧縮 */
+        .seg-h { width: 74%; height: 10%; left: 13%; } 
+        .seg-v { width: 16%; height: 38%; } /* 垂直セグメントを短縮 */
+        
         .seg-a { top: 2%; } .seg-b { top: 6%; right: 2%; } .seg-c { bottom: 6%; right: 2%; }
         .seg-d { bottom: 2%; } .seg-e { bottom: 6%; left: 2%; } .seg-f { top: 6%; left: 2%; }
-        .seg-g { top: 44%; width: 64%; height: 12%; left: 18%; } 
+        .seg-g { top: 45%; width: 64%; height: 10%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
         #top-section { height: 42vh; display: flex; align-items: center; justify-content: center; border: 4px solid #1a1a1a; }
         #mid-section { height: 44vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #1a1a1a; }
 
-        /* スケールを 0.86 に縮小（縦横の縮小指示を反映） */
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
         
-        .d-lg { width: 13.5vw; height: 38vh; } 
-        .d-sm { width: 3.2vw; height: 14vh; }  
+        /* 1:2.7比率を維持しつつ高さをさらに圧縮 */
+        .d-lg { width: 13.5vw; height: 34vh; } 
+        .d-sm { width: 3.2vw; height: 12.5vh; }  
         
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
         .dot-date { width: 0.8vw; height: 0.8vw; margin-bottom: 0.5vh; } 
         .dot-time { width: 2.2vw; height: 2.2vw; } 
         
-        .colon-box { display: flex; flex-direction: column; gap: 10vh; margin-bottom: 8vh; padding: 0 2vw; }
+        .colon-box { display: flex; flex-direction: column; gap: 8vh; margin-bottom: 6vh; padding: 0 2vw; }
 
         .h-row-unified { display: flex; height: 5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
         .h-25, .h-25-right { width: 25%; color: #fff; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; }
@@ -76,9 +79,12 @@
         .hi-label { color: #000; background: #ff3333; }
         .lo-label { color: #000; background: #00eaff; }
 
-        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); background: #222; border-top: var(--section-gap); height: 12vh; }
+        /* 降水確率セクション */
+        .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); height: 16vh; }
+        .prob-header { background: #111; color: #888; font-size: 1.8vh; padding: 2px 10px; border-bottom: 1px solid #333; text-align: center; letter-spacing: 0.5em; }
+        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; background: #222; }
         .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: var(--border-sub); }
-        .prob-label { font-size: var(--unified-ui-font); color: #fff; background: #1a1a1a; width: 92%; text-align: center; border: 1px solid #444; margin-bottom: 4px; }
+        .prob-label { font-size: 1.6vh; color: #fff; background: #1a1a1a; width: 92%; text-align: center; border: 1px solid #444; margin-bottom: 4px; }
         .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); animation: scroll 28s linear infinite; line-height: 12vh; }
@@ -111,7 +117,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V109 COMPACT-REFINED】時計を縦6%・横2%縮小し、セクション内に落ち着いた余白を再構築。</div>
+        <div class="ticker" id="ticker-text">【V110 Y-COMPRESSED】文字ごとY軸方向に圧縮しワイド感を強調。「降水確率」の見出しを追加。</div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
@@ -203,8 +209,11 @@
                                     <div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>
                                 </div>
                             </div>
-                            <div class="w-prob-grid">
-                                ${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}
+                            <div class="prob-section">
+                                <div class="prob-header">降水確率</div>
+                                <div class="w-prob-grid">
+                                    ${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}
+                                </div>
                             </div>
                         </div>`;
                     
@@ -217,6 +226,7 @@
             } catch (e) { console.error(e); }
         }
 
+        function editTicker() { const m = prompt("EDIT TICKER:", document.getElementById('ticker-text').innerText); if(m) document.getElementById('ticker-text').innerText = m; }
         window.onload = () => {
             document.getElementById('date-group').innerHTML = 
                 build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+
