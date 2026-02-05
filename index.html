@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v113</title>
+    <title>Sapporo Industrial VFD v114</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,8 +14,8 @@
             --glow-outer: #ff2200;
             --discharge: 0 0 8px var(--glow-core), 0 0 15px var(--glow-main), 0 0 30px var(--glow-outer);
             
-            --base-ui-size: 2.4vh; 
-            --sub-ui-size: 1.68vh; 
+            --base-ui-size: 2.3vh; 
+            --sub-ui-size: 1.6vh; 
             --header-font-size: 3vh; 
             
             --border-main: 2px solid #333;
@@ -33,6 +33,8 @@
         }
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
+        
+        /* 7Seg VFD Logic */
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
         .seg-h { width: 74%; height: 10%; left: 13%; } 
@@ -42,33 +44,34 @@
         .seg-g { top: 45%; width: 64%; height: 10%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
-        #top-section { height: 42vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
-        #mid-section { height: 44vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
+        /* レイアウト比率固定用 */
+        #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
+        #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #151515; }
 
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.88); } 
-        .d-lg { width: 13.8vw; height: 34vh; } 
-        .d-sm { width: 3.2vw; height: 12.5vh; }  
+        .d-lg { width: 13.8vw; height: 32vh; } 
+        .d-sm { width: 3.2vw; height: 12vh; }  
         
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
         .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
-        .colon-box { display: flex; flex-direction: column; gap: 8vh; margin-bottom: 6vh; padding: 0 2vw; }
+        .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 2vw; }
 
         .h-row-unified { display: flex; height: 5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
         .h-25, .h-25-right { width: 25%; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .h-50 { width: 50%; color: var(--glow-main); font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; text-shadow: 0 0 10px var(--glow-outer); }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
-        .card { border-right: var(--border-main); display: flex; flex-direction: column; }
+        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
         .card:last-child { border-right: none; }
         
-        .w-main-row { display: flex; flex-grow: 1; align-items: center; position: relative; }
+        .w-main-row { height: 22vh; display: flex; align-items: center; position: relative; }
         .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 1px; background: #222; transform: translateX(-50%); }
 
         .w-visual { width: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .w-icon { font-size: 8vh; line-height: 0.8; filter: drop-shadow(0 0 10px var(--glow-main)); margin-bottom: 2vh; }
-        .w-text { font-size: var(--base-ui-size); font-weight: bold; text-align: center; width: 90%; color: #eee; }
+        .w-text { font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; }
 
         .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
@@ -76,25 +79,25 @@
         .hi-label { color: #000; background: #ff3b3b; }
         .lo-label { color: #000; background: #00d9ff; }
 
-        /* 降水確率：余白削除の再定義 */
-        .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); height: 16vh; }
+        /* 降水確率：完全対称三層構造 */
+        .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); flex-grow: 1; background: #000; }
         .prob-main-title {
-            background: #111; color: #777; font-size: var(--sub-ui-size);
-            height: 3vh; line-height: 3vh; text-align: center;
-            letter-spacing: 0.6em; margin-bottom: 0; /* 余白排除 */
+            background: #111; color: #ccc; /* 白に近いグレー */
+            font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh;
+            text-align: center; letter-spacing: 0.6em;
         }
-        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; background: #000; border-top: 1px solid #222; }
-        .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #111; }
+        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
+        .prob-item { 
+            background: #000; display: flex; flex-direction: column; 
+            align-items: center; justify-content: space-evenly; /* 垂直方向に均等配置 */
+            border-right: 1px solid #111; padding: 0.5vh 0;
+        }
         
         .prob-label { 
-            font-size: var(--base-ui-size); 
-            color: #ffffff; /* 白色に変更 */
-            width: 100%; text-align: center; 
-            padding: 2px 0;
-            background: #0a0a0a;
-            margin-bottom: 0; /* 余白排除 */
+            font-size: var(--base-ui-size); color: #ffffff; /* 純白 */
+            width: 100%; text-align: center; font-weight: bold;
         }
-        .prob-digits-row { display: flex; justify-content: center; width: 100%; padding-top: 1px; }
+        .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); animation: scroll 28s linear infinite; line-height: 12vh; text-shadow: 0 0 10px var(--glow-outer); }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-110%); } }
@@ -123,7 +126,7 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V113 SOLID-INTERFACE】降水確率エリアの余白を完全削除。時間軸をホワイトに変更し、視認性と密度を最大化。</div>
+        <div class="ticker" id="ticker-text">【V114 RATIO-OPTIMIZED】1920×1200対応。降水確率エリアを「見出し(淡白)・時間(純白)・数値(琥珀)」の完全三層構造に再構築。</div>
     </div>
 
     <script>
