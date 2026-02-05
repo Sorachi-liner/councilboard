@@ -2,10 +2,9 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v133</title>
+    <title>Sapporo Industrial VFD v131</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
-        /* CSS設定は v132 を継承 (輝度・サイズ共に最適化済み) */
         :root {
             --bg-color: #000;
             --iron-panel: #060608;
@@ -20,8 +19,10 @@
             --border-main: 2px solid #333;
             --section-gap: 6px solid #1a1a1a;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); width: 100vw; height: 100vh; overflow: hidden; display: flex; flex-direction: column; font-family: 'DotGothic16', sans-serif; color: #fff; }
+
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; transition: background 0.1s; }
@@ -30,45 +31,63 @@
         .seg-d { bottom: 2%; } .seg-e { bottom: 6%; left: 2%; } .seg-f { top: 6%; left: 2%; }
         .seg-g { top: 45%; width: 64%; height: 10%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
+
         #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
-        .d-lg { width: 13.9vw; height: 32vh; } .d-sm { width: 3.63vw; height: 12vh; }  
+        .d-lg { width: 13.9vw; height: 32vh; } 
+        .d-sm { width: 3.63vw; height: 12vh; }  
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
         .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
+
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         .h-row-unified { display: flex; height: 5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
         .h-25, .h-25-right { width: 25%; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .h-50 { width: 50%; color: var(--glow-main); font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; text-shadow: 0 0 15px var(--glow-outer); }
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
+        .card:last-child { border-right: none; }
         .w-main-row { height: 22vh; display: flex; align-items: center; position: relative; }
         .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 1px; background: #222; transform: translateX(-50%); }
         .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .w-icon { height: 8vh; font-size: 7vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
         .w-text { height: 7.5vh; font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
+
         .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
         .label-box { font-size: var(--base-ui-size); font-weight: bold; padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
         .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
         .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
+
         .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); flex-grow: 1; background: #000; }
         .prob-main-title { background: #111; color: #ccc; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.6em; }
         .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
         .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; border-right: 1px solid #111; padding: 0.5vh 0; }
         .prob-label { font-size: var(--base-ui-size); color: #ffffff; width: 100%; text-align: center; font-weight: bold; }
         .prob-digits-row { display: flex; justify-content: center; width: 100%; }
+
         #bot-section { height: 12vh; display: flex; align-items: center; justify-content: flex-start; background: #000; border: 4px solid #151515; overflow: hidden; position: relative; }
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; will-change: transform; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
         #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0; transition: 0.4s; padding: 40px; }
         #admin:hover { opacity: 1; transform: scale(1.2); } 
         #admin button { background: #000; color: var(--glow-main); border: 3px solid var(--glow-main); padding: 10px 22px; font-family: 'DotGothic16'; cursor: pointer; border-radius: 6px; font-size: 2.2vh; font-weight: bold; }
-        .d-temp { width: 2.8vw; height: 8vh; } .d-prob { width: 2.2vw; height: 5vh; } 
+
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+        #editor-panel { background: #111; border: 4px solid #444; width: 90%; max-width: 600px; padding: 30px; }
+        .input-row { margin-bottom: 15px; display: grid; grid-template-columns: 80px 1fr 1.5fr; gap: 10px; align-items: center; }
+        input { background: #000; border: 2px solid #333; color: #fff; padding: 12px; font-family: 'DotGothic16'; font-size: 1.8vh; width: 100%; }
+        .panel-btns { display: flex; justify-content: flex-end; gap: 20px; margin-top: 30px; }
+        .p-btn { padding: 12px 30px; cursor: pointer; font-family: 'DotGothic16'; font-weight: bold; border: 2px solid; }
+
+        .d-temp { width: 2.8vw; height: 8vh; } 
+        .d-prob { width: 2.2vw; height: 5vh; } 
     </style>
 </head>
 <body>
+
     <div id="top-section" class="bezel">
         <div class="clock-wrapper">
             <div id="date-group" style="display:flex; align-items:flex-end; padding-right:2.0vw;"></div>
@@ -76,15 +95,36 @@
             <div id="sec-group" style="display:flex; align-items:flex-end; margin-left:1.5vw;"></div>
         </div>
     </div>
+
     <div id="mid-section" class="bezel">
-        <div class="h-row-unified"><div class="h-25">TODAY</div><div id="update-label" class="h-50">SAPPORO: --:-- UPDATED</div><div class="h-25-right">TOMORROW</div></div>
+        <div class="h-row-unified">
+            <div class="h-25">TODAY</div>
+            <div id="update-label" class="h-50">SAPPORO: --:-- UPDATED</div>
+            <div class="h-25-right">TOMORROW</div>
+        </div>
         <div class="weather-grid" id="weatherGrid"></div>
     </div>
+
     <div id="bot-section" class="bezel"><div class="ticker" id="ticker-text"></div></div>
+
     <div id="admin"><button onclick="openEditor()">EDIT</button></div>
+
+    <div id="overlay">
+        <div id="editor-panel">
+            <h2 style="color:white; margin-bottom:20px;">MESSAGE EDITOR</h2>
+            <div class="input-row"><label>SET 1</label><input type="text" id="t1"><input type="text" id="b1"></div>
+            <div class="input-row"><label>SET 2</label><input type="text" id="t2"><input type="text" id="b2"></div>
+            <div class="input-row"><label>SET 3</label><input type="text" id="t3"><input type="text" id="b3"></div>
+            <div class="panel-btns">
+                <button class="p-btn" style="background:#222; color:#fff;" onclick="closeEditor()">CANCEL</button>
+                <button class="p-btn" style="background:var(--glow-main); color:#000;" onclick="saveData()">SAVE</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
+        const STORAGE_KEY = 'vfd_multi_ticker_v127';
 
         function build(cls) {
             let h = `<div class="digit ${cls}">`;
@@ -128,18 +168,14 @@
                     });
                     const icon = weatherText.includes('雪') ? '❄️' : weatherText.includes('雨') ? '☔' : weatherText.includes('曇') ? '☁️' : '☀️';
 
-                    // 気象庁仕様に基づく厳密な気温抽出
+                    // 気温の欠損処理を強化
                     let maxT = "--", minT = "--";
                     tempTimes.forEach((tt, idx) => {
                         const d = new Date(tt);
                         if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) {
                             const val = tempSeries.temps[idx];
                             if(val !== undefined && val !== null) {
-                                const hr = d.getHours();
-                                // 9時-18時のデータがあれば最高気温
-                                if(hr >= 9 && hr <= 18) maxT = val;
-                                // 0時-9時のデータがあれば最低気温（5時発表の「当日」分はここが空になる）
-                                else if(hr >= 0 && hr < 9) minT = val;
+                                if(d.getHours() >= 9 && d.getHours() <= 18) maxT = val; else minT = val;
                             }
                         }
                     });
@@ -168,14 +204,39 @@
             } catch (e) { console.error(e); }
         }
 
+        function openEditor() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"VFD OPERATIONAL"}, {t:"",b:""}, {t:"",b:""}];
+            for(let i=1; i<=3; i++) {
+                document.getElementById(`t${i}`).value = data[i-1]?.t || "";
+                document.getElementById(`b${i}`).value = data[i-1]?.b || "";
+            }
+            document.getElementById('overlay').style.display = 'flex';
+        }
+        function closeEditor() { document.getElementById('overlay').style.display = 'none'; }
+        function saveData() {
+            const newData = [];
+            for(let i=1; i<=3; i++) { newData.push({ t: document.getElementById(`t${i}`).value, b: document.getElementById(`b${i}`).value }); }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+            closeEditor(); initTicker();
+        }
+        function initTicker() {
+            const ticker = document.getElementById('ticker-text');
+            const stored = localStorage.getItem(STORAGE_KEY);
+            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"VFD OPERATIONAL"}];
+            let combined = data.map(item => (item.t || item.b) ? `${item.t ? `【${item.t}】` : ""}${item.b}` : "").filter(s => s).join(" 　 ");
+            ticker.innerText = combined || "---";
+            const duration = (window.innerWidth + ticker.offsetWidth) / 192; 
+            ticker.style.animation = 'none'; ticker.offsetHeight; 
+            ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
+        }
+
         window.onload = () => {
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
             tick(); setInterval(tick, 1000); fetchWeather(); setInterval(fetchWeather, 3600000);
-            const ticker = document.getElementById('ticker-text');
-            ticker.innerText = "VFD SYSTEM v133 // METEOROLOGICAL DATA SYNCHRONIZED // SAPPORO STATION";
-            ticker.style.animation = `ticker-anim 25s linear infinite`;
+            initTicker(); window.addEventListener('resize', initTicker);
         };
     </script>
 </body>
