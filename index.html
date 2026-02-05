@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v117</title>
+    <title>Sapporo Industrial VFD v118</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -33,7 +33,6 @@
         }
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
-        
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
         .seg-h { width: 74%; height: 10%; left: 13%; } 
@@ -45,7 +44,7 @@
 
         #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
-        #bot-section { height: 12vh; display: flex; align-items: center; justify-content: flex-start; background: #000; border: 4px solid #151515; overflow: hidden; }
+        #bot-section { height: 12vh; display: flex; align-items: center; justify-content: center; background: #000; border: 4px solid #151515; overflow: hidden; }
 
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.88); } 
         .d-lg { width: 13.8vw; height: 32vh; } 
@@ -84,21 +83,18 @@
         .prob-label { font-size: var(--base-ui-size); color: #ffffff; width: 100%; text-align: center; font-weight: bold; }
         .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
-        /* スクロール用CSS */
+        /* スクロールアニメーション（1920pxあたり15秒基準） */
+        .ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
         .ticker { 
-            white-space: nowrap; 
-            font-size: 6vh; 
-            color: var(--glow-main); 
+            display: inline-block;
+            font-size: 6vh; color: var(--glow-main); line-height: 12vh;
             text-shadow: 0 0 10px var(--glow-outer); 
-            line-height: 12vh;
-            position: absolute;
-            will-change: transform;
-            transform: translateX(100vw);
+            padding-left: 100vw; /* 画面右端からスタートさせる */
+            animation: vfd-scroll linear infinite;
         }
-
-        @keyframes ticker-scroll {
-            from { transform: translateX(100vw); }
-            to { transform: translateX(-100%); }
+        @keyframes vfd-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
         }
 
         #admin { position: fixed; bottom: 15px; right: 15px; z-index: 9999; opacity: 0.4; }
@@ -125,7 +121,9 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker" id="ticker-text">【V117 SYNC-SCROLL】1920pxあたり15秒の等速移動。短いテキストでも右端から出て左端へ消えるまでループしません。</div>
+        <div class="ticker-wrap">
+            <div class="ticker" id="ticker-text">【V118 STABLE】気象データ表示をv115準拠で復旧。スクロールは1920px/15s基準の等速移動を適用。</div>
+        </div>
     </div>
 
     <div id="admin"><button onclick="editTicker()">EDIT</button></div>
@@ -161,6 +159,7 @@
                 const data = await res.json();
                 const reportDate = new Date(data[0].reportDatetime);
                 document.getElementById('update-label').innerText = `SAPPORO: ${reportDate.getHours().toString().padStart(2,'0')}:${reportDate.getMinutes().toString().padStart(2,'0')} UPDATED`;
+                
                 const weatherData = data[0].timeSeries[0].areas[0];
                 const popSeries = data[0].timeSeries[1].areas[0];
                 const popTimes = data[0].timeSeries[1].timeDefines;
@@ -169,6 +168,7 @@
 
                 const grid = document.getElementById('weatherGrid');
                 grid.innerHTML = "";
+                
                 for(let i=0; i<2; i++) {
                     const target = new Date();
                     target.setDate(target.getDate() + i);
@@ -180,6 +180,7 @@
                         if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) weatherText = weatherData.weathers[idx];
                     });
                     const icon = (weatherText.includes('雪')) ? '❄' : (weatherText.includes('雨')) ? '☔' : (weatherText.includes('曇')) ? '☁' : (weatherText==="---") ? "?" : '☀';
+
                     let maxT = "--", minT = "--";
                     tempTimes.forEach((tt, idx) => {
                         const d = new Date(tt);
@@ -189,6 +190,7 @@
                             if(hr >= 9 && hr <= 18) maxT = val; else minT = val;
                         }
                     });
+
                     let pops = ["--", "--", "--", "--"];
                     popTimes.forEach((tp, idx) => {
                         const d = new Date(tp);
@@ -219,6 +221,7 @@
                                 </div>
                             </div>
                         </div>`;
+                    
                     setTimeout(() => {
                         draw(document.getElementById(`hi-${i}`), maxT);
                         draw(document.getElementById(`lo-${i}`), minT);
@@ -228,27 +231,20 @@
             } catch (e) { console.error(e); }
         }
 
-        // スクロール速度の計算と適用
-        function initTicker() {
+        // スクロール速度の再計算
+        function updateTicker() {
             const ticker = document.getElementById('ticker-text');
-            const screenWidth = window.innerWidth;
-            const textWidth = ticker.offsetWidth;
-            const totalDistance = screenWidth + textWidth; // 右端から左端へ完全に消える距離
-            
-            // 1920pxを15秒で進む速度 = 128px/s
-            const speed = 128; 
-            const duration = totalDistance / speed;
-
-            ticker.style.animation = 'none';
-            ticker.offsetHeight; 
-            ticker.style.animation = `ticker-scroll ${duration}s linear infinite`;
+            const totalWidth = ticker.offsetWidth; // 100vw + テキスト自体の幅
+            // 1920pxを15秒で進む = 128px/秒
+            const duration = totalWidth / 128;
+            ticker.style.animationDuration = `${duration}s`;
         }
 
         function editTicker() {
             const m = prompt("EDIT TICKER:", document.getElementById('ticker-text').innerText);
             if(m) {
                 document.getElementById('ticker-text').innerText = m;
-                initTicker();
+                updateTicker();
             }
         }
 
@@ -257,8 +253,8 @@
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
             tick(); setInterval(tick, 1000); fetchWeather(); setInterval(fetchWeather, 3600000);
-            initTicker();
-            window.addEventListener('resize', initTicker);
+            updateTicker();
+            window.addEventListener('resize', updateTicker);
         };
     </script>
 </body>
