@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131</title>
+    <title>Sapporo Industrial VFD v131.1</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -151,6 +151,11 @@
             try {
                 const res = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
                 const data = await res.json();
+                
+                // 【再実装】更新時刻の反映
+                const reportDate = new Date(data[0].reportDatetime);
+                document.getElementById('update-label').innerText = `SAPPORO: ${reportDate.getHours().toString().padStart(2,'0')}:${reportDate.getMinutes().toString().padStart(2,'0')} UPDATED`;
+
                 const weatherData = data[0].timeSeries[0].areas[0];
                 const popSeries = data[0].timeSeries[1].areas[0];
                 const tempSeries = data[0].timeSeries[2].areas[0];
@@ -168,7 +173,6 @@
                     });
                     const icon = weatherText.includes('雪') ? '❄️' : weatherText.includes('雨') ? '☔' : weatherText.includes('曇') ? '☁️' : '☀️';
 
-                    // 気温の欠損処理を強化
                     let maxT = "--", minT = "--";
                     tempTimes.forEach((tt, idx) => {
                         const d = new Date(tt);
