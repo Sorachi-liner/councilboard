@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.7</title>
+    <title>Sapporo Industrial VFD v131.3.1</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,87 +12,84 @@
             --glow-core: #ffffff;
             --glow-main: #ff9d00; 
             --glow-outer: #ff3300;
-            --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer);
-            --base-font-size: 2.2vh; 
-            --heavy-border: 4px solid #2a2a2a; /* 二重線を防ぐ太線設定 */
-            --thin-border: 1px solid #222;
+            --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer), 0 0 50px rgba(255, 34, 0, 0.4);
+            --base-ui-size: 2.3vh; 
+            --sub-ui-size: 1.6vh; 
+            --header-font-size: 3vh; 
+            --border-main: 2px solid #333;
+            --section-gap: 6px solid #1a1a1a;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); width: 100vw; height: 100vh; overflow: hidden; display: flex; flex-direction: column; font-family: 'DotGothic16', sans-serif; color: #fff; }
 
-        .bezel { background: var(--iron-panel); position: relative; flex-shrink: 0; border: var(--heavy-border); }
-        .digit { position: relative; flex-shrink: 0; margin-right: 0.8vw; } 
-        .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
+        .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
+        .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
+        .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; transition: background 0.1s; }
         .seg-h { width: 74%; height: 10%; left: 13%; } .seg-v { width: 15%; height: 38%; } 
         .seg-a { top: 2%; } .seg-b { top: 6%; right: 2%; } .seg-c { bottom: 6%; right: 2%; }
         .seg-d { bottom: 2%; } .seg-e { bottom: 6%; left: 2%; } .seg-f { top: 6%; left: 2%; }
         .seg-g { top: 45%; width: 64%; height: 10%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
-        /* TOP SECTION */
-        #top-section { height: 38vh; display: flex; align-items: center; justify-content: center; border-bottom: none; }
-        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.85); } 
-        .d-lg { width: 13vw; height: 30vh; } .d-sm { width: 3.5vw; height: 11vh; }  
+        #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
+        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
+        .d-lg { width: 13.9vw; height: 32vh; } .d-sm { width: 3.63vw; height: 12vh; }  
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
-        .dot-date, .dot-time { background: var(--glow-core); box-shadow: var(--discharge); }
         .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
-        .colon-box { display: flex; flex-direction: column; gap: 6vh; margin-bottom: 5vh; padding: 0 1vw; }
+        .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
 
-        /* MID SECTION */
-        #mid-section { height: 48vh; display: flex; flex-direction: column; background: #000; border-top: none; }
-        .h-row-unified { display: flex; height: 6vh; background: #000; border-bottom: var(--heavy-border); }
-        .h-25 { width: 25%; font-size: var(--base-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; color: #fff; }
-        .h-50 { width: 50%; background: #080808; display: flex; align-items: center; justify-content: center; border-left: var(--heavy-border); border-right: var(--heavy-border); gap: 1vw; }
-        .upd-label { font-size: 1.8vh; color: #fff; font-weight: bold; }
-        .d-upd { width: 1.8vw; height: 3.5vh; margin-right: 0.3vw !important; }
-        .colon-upd { color: #fff; font-weight: bold; font-size: 2vh; padding: 0 2px; }
+        #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
+        .h-row-unified { display: flex; height: 5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
+        .h-25, .h-25-right { width: 25%; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .h-50 { width: 50%; color: var(--glow-main); font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; text-shadow: 0 0 15px var(--glow-outer); gap: 1vw; }
+        
+        /* 7セグ更新時刻用の個別調整 */
+        .d-upd { width: 1.6vw; height: 3.2vh; margin-right: 0.4vw !important; }
+        .colon-upd { color: var(--glow-main); font-weight: bold; font-size: 2.5vh; padding: 0 2px; }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
-        .card { display: flex; flex-direction: column; border-right: var(--heavy-border); }
-        .card:last-child { border-right: none; }
+        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
+        .w-main-row { height: 22vh; display: flex; align-items: center; position: relative; }
+        .v-sep-float { position: absolute; left: 50%; top: 10%; height: 80%; width: 1px; background: #222; transform: translateX(-50%); }
+        .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .w-icon { height: 8vh; font-size: 7vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
+        .w-text { height: 7.5vh; font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #eee; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
+        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
+        .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
+        .label-box { font-size: var(--base-ui-size); font-weight: bold; padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
+        .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
+        .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
 
-        .w-main-row { height: 22vh; display: flex; align-items: center; border-bottom: var(--thin-border); }
-        .w-visual { width: 45%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: var(--thin-border); }
-        .w-icon { height: 7vh; font-size: 6.5vh; margin-bottom: 1vh; color: #fff; text-shadow: var(--discharge); }
-        .w-text { font-size: 1.8vh; font-weight: bold; text-align: center; color: #fff; padding: 0 0.5vw; }
-        .w-stats { width: 55%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; justify-content: center; }
-        
-        .temp-line { display: flex; align-items: center; width: 100%; justify-content: center; }
-        .label-box { font-size: 1.6vh; font-weight: bold; padding: 2px 4px; min-width: 4vw; text-align: center; border: 1px solid #fff; margin-right: 1vw; color: #fff; }
-        .hi-label { background: rgba(255,157,0,0.3); } 
-
-        .prob-section { display: flex; flex-direction: column; flex-grow: 1; border-top: var(--thin-border); }
-        .prob-main-title { background: #0a0a0a; color: #fff; font-size: 1.4vh; height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.4em; border-bottom: var(--thin-border); }
+        .prob-section { display: flex; flex-direction: column; border-top: var(--section-gap); flex-grow: 1; background: #000; }
+        .prob-main-title { background: #111; color: #ccc; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.6em; }
         .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
-        .prob-item { border-right: var(--thin-border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5vh; padding: 0.5vh; }
-        .prob-item:last-child { border-right: none; }
-        .prob-label { font-size: 1.4vh; color: #fff; font-weight: bold; }
-        .prob-digits-row { display: flex; justify-content: center; align-items: center; width: 100%; }
+        .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; border-right: 1px solid #111; padding: 0.5vh 0; }
+        .prob-label { font-size: var(--base-ui-size); color: #ffffff; width: 100%; text-align: center; font-weight: bold; }
+        .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
-        /* BOTTOM SECTION */
-        #bot-section { height: 12vh; display: flex; align-items: center; border-top: none; }
-        .ticker { white-space: nowrap; font-size: 6vh; color: #fff; line-height: 12vh; text-shadow: var(--discharge); position: absolute; left: 0; will-change: transform; }
+        #bot-section { height: 12vh; display: flex; align-items: center; justify-content: flex-start; background: #000; border: 4px solid #151515; overflow: hidden; position: relative; }
+        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; will-change: transform; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        /* Admin UI */
-        #admin { position: fixed; bottom: 10px; right: 10px; opacity: 0; padding: 20px; transition: 0.3s; z-index: 500; }
-        #admin:hover { opacity: 1; }
-        #admin button { background: #000; color: #fff; border: 1px solid #fff; padding: 5px 10px; font-family: 'DotGothic16'; cursor: pointer; }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
-        #editor-panel { background: #111; border: 2px solid #fff; width: 80%; max-width: 500px; padding: 20px; }
-        input { background: #000; border: 1px solid #444; color: #fff; padding: 10px; width: 100%; margin: 5px 0; font-family: 'DotGothic16'; }
+        #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0; transition: 0.4s; padding: 40px; }
+        #admin:hover { opacity: 1; transform: scale(1.2); } 
+        #admin button { background: #000; color: var(--glow-main); border: 3px solid var(--glow-main); padding: 10px 22px; font-family: 'DotGothic16'; cursor: pointer; border-radius: 6px; font-size: 2.2vh; font-weight: bold; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+        #editor-panel { background: #111; border: 4px solid #444; width: 90%; max-width: 600px; padding: 30px; }
+        .input-row { margin-bottom: 15px; display: grid; grid-template-columns: 80px 1fr 1.5fr; gap: 10px; align-items: center; }
+        input { background: #000; border: 2px solid #333; color: #fff; padding: 12px; font-family: 'DotGothic16'; font-size: 1.8vh; width: 100%; }
+        .p-btn { padding: 12px 30px; cursor: pointer; font-family: 'DotGothic16'; font-weight: bold; border: 2px solid; }
 
-        .d-temp { width: 2.2vw; height: 6.5vh; } 
-        .d-prob { width: 1.6vw; height: 4vh; margin-right: 0.2vw !important; } 
+        .d-temp { width: 2.8vw; height: 8vh; } .d-prob { width: 2.2vw; height: 5vh; } 
     </style>
 </head>
 <body>
 
     <div id="top-section" class="bezel">
         <div class="clock-wrapper">
-            <div id="date-group" style="display:flex; align-items:flex-end; padding-right:2vw;"></div>
+            <div id="date-group" style="display:flex; align-items:flex-end; padding-right:2.0vw;"></div>
             <div id="time-group" style="display:flex; align-items:flex-end;"></div>
             <div id="sec-group" style="display:flex; align-items:flex-end; margin-left:1.5vw;"></div>
         </div>
@@ -102,11 +99,11 @@
         <div class="h-row-unified">
             <div class="h-25">TODAY</div>
             <div class="h-50">
-                <span class="upd-label">SAPPORO</span>
+                <span>SAPPORO:</span>
                 <div id="upd-time-vfd" style="display:flex; align-items:center;"></div>
-                <span class="upd-label">UPDATED</span>
+                <span>UPDATED</span>
             </div>
-            <div class="h-25">TOMORROW</div>
+            <div class="h-25-right">TOMORROW</div>
         </div>
         <div class="weather-grid" id="weatherGrid"></div>
     </div>
@@ -117,12 +114,13 @@
 
     <div id="overlay">
         <div id="editor-panel">
-            <h3 style="margin-bottom:15px; color:#fff;">TICKER SETTINGS</h3>
-            <input type="text" id="t1" placeholder="Label 1"><input type="text" id="b1" placeholder="Message 1">
-            <input type="text" id="t2" placeholder="Label 2"><input type="text" id="b2" placeholder="Message 2">
-            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
-                <button onclick="closeEditor()" style="padding:10px; color:#fff; background:#333; border:none;">CANCEL</button>
-                <button onclick="saveData()" style="padding:10px; background:#fff; color:#000; border:none;">SAVE</button>
+            <h2 style="color:white; margin-bottom:20px;">MESSAGE EDITOR</h2>
+            <div class="input-row"><label>SET 1</label><input type="text" id="t1"><input type="text" id="b1"></div>
+            <div class="input-row"><label>SET 2</label><input type="text" id="t2"><input type="text" id="b2"></div>
+            <div class="input-row"><label>SET 3</label><input type="text" id="t3"><input type="text" id="b3"></div>
+            <div style="display:flex; justify-content:flex-end; gap:20px; margin-top:30px;">
+                <button class="p-btn" style="background:#222; color:#fff;" onclick="closeEditor()">CANCEL</button>
+                <button class="p-btn" style="background:var(--glow-main); color:#000;" onclick="saveData()">SAVE</button>
             </div>
         </div>
     </div>
@@ -164,6 +162,7 @@
                 const weatherData = data[0].timeSeries[0].areas[0];
                 const popSeries = data[0].timeSeries[1].areas[0];
                 const tempSeries = data[0].timeSeries[2].areas[0];
+                const tempTimes = data[0].timeSeries[2].timeDefines;
                 const grid = document.getElementById('weatherGrid');
                 let html = ""; const dayData = [];
 
@@ -178,7 +177,7 @@
                     const icon = weatherText.includes('雪') ? '❄️' : weatherText.includes('雨') ? '☔' : weatherText.includes('曇') ? '☁️' : '☀️';
 
                     let maxT = "--", minT = "--";
-                    data[0].timeSeries[2].timeDefines.forEach((tt, idx) => {
+                    tempTimes.forEach((tt, idx) => {
                         const d = new Date(tt);
                         if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) {
                             const val = tempSeries.temps[idx];
@@ -194,14 +193,15 @@
                         if(d.getFullYear()===tY && d.getMonth()===tM && d.getDate()===tD) {
                             const hr = d.getHours();
                             const val = popSeries.pops[idx];
-                            if(hr === 0) pops[0]=val; else if(hr === 6) pops[1]=val; else if(hr === 12) pops[2]=val; else if(hr === 18) pops[3]=val;
+                            const pVal = (val !== undefined && val !== null) ? val : "--";
+                            if(hr === 0) pops[0]=pVal; else if(hr === 6) pops[1]=pVal; else if(hr === 12) pops[2]=pVal; else if(hr === 18) pops[3]=pVal;
                         }
                     });
 
                     dayData.push({maxT, minT, pops});
-                    const loLine = (i === 0) ? "" : `<div class="temp-line"><div class="label-box">LO</div><div id="lo-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>`;
+                    const loHtml = (i === 0) ? "" : `<div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>`;
                     
-                    html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weatherText}</div></div><div class="w-stats"><div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>${loLine}</div></div><div class="prob-section"><div class="prob-main-title">降水確率</div><div class="w-prob-grid">${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}</div></div></div>`;
+                    html += `<div class="card"><div class="w-main-row"><div class="v-sep-float"></div><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weatherText}</div></div><div class="w-stats"><div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>${loHtml}</div></div><div class="prob-section"><div class="prob-main-title">降水確率</div><div class="w-prob-grid">${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}</div></div></div>`;
                 }
                 grid.innerHTML = html;
                 setTimeout(() => {
@@ -211,7 +211,7 @@
                         d.pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p));
                     });
                 }, 100);
-            } catch (e) { console.warn("Fetch failed.", e); }
+            } catch (e) { console.warn("Fetch failed, retaining last data.", e); }
         }
 
         function updateScheduler() {
@@ -221,21 +221,28 @@
 
         function openEditor() {
             const stored = localStorage.getItem(STORAGE_KEY);
-            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"SYSTEM ACTIVE"}, {t:"",b:""}];
-            document.getElementById('t1').value = data[0]?.t || ""; document.getElementById('b1').value = data[0]?.b || "";
+            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"VFD SYSTEM ACTIVE"}, {t:"",b:""}, {t:"",b:""}];
+            for(let i=1; i<=3; i++) {
+                document.getElementById(`t${i}`).value = data[i-1]?.t || "";
+                document.getElementById(`b${i}`).value = data[i-1]?.b || "";
+            }
             document.getElementById('overlay').style.display = 'flex';
         }
         function closeEditor() { document.getElementById('overlay').style.display = 'none'; }
         function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify([{t:document.getElementById('t1').value, b:document.getElementById('b1').value}, {t:document.getElementById('t2').value, b:document.getElementById('b2').value}]));
+            const newData = [];
+            for(let i=1; i<=3; i++) { newData.push({ t: document.getElementById(`t${i}`).value, b: document.getElementById(`b${i}`).value }); }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
             closeEditor(); initTicker();
         }
         function initTicker() {
             const ticker = document.getElementById('ticker-text');
             const stored = localStorage.getItem(STORAGE_KEY);
-            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"INDUSTRIAL VFD SYSTEM ACTIVE"}];
-            ticker.innerText = data.map(i => i.t ? `【${i.t}】${i.b}` : i.b).filter(s => s).join(" 　 ");
-            const duration = (window.innerWidth + ticker.offsetWidth) / 180;
+            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"SAPPORO INDUSTRIAL VFD SYSTEM ACTIVE"}];
+            let combined = data.map(item => (item.t || item.b) ? `${item.t ? `【${item.t}】` : ""}${item.b}` : "").filter(s => s).join(" 　 ");
+            ticker.innerText = combined || "---";
+            const duration = (window.innerWidth + ticker.offsetWidth) / 180; 
+            ticker.style.animation = 'none'; ticker.offsetHeight; 
             ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
         }
 
@@ -244,7 +251,10 @@
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
             document.getElementById('upd-time-vfd').innerHTML = build('d-upd').repeat(2)+'<div class="colon-upd">:</div>'+build('d-upd').repeat(2);
-            tick(); setInterval(tick, 1000); fetchWeather(); setInterval(updateScheduler, 60000); initTicker();
+            tick(); setInterval(tick, 1000); 
+            fetchWeather();
+            setInterval(updateScheduler, 60000);
+            initTicker(); window.addEventListener('resize', initTicker);
         };
     </script>
 </body>
