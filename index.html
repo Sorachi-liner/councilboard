@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.6</title>
+    <title>Sapporo Industrial VFD v131.7</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,18 +12,16 @@
             --glow-core: #ffffff;
             --glow-main: #ff9d00; 
             --glow-outer: #ff3300;
-            --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer), 0 0 50px rgba(255, 34, 0, 0.4);
-            --base-ui-size: 2.1vh; 
-            --sub-ui-size: 1.5vh; 
-            --header-font-size: 2.8vh; 
-            --border-panel: 2px solid #2a2a2a;
-            --border-cell: 1px solid #222;
+            --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer);
+            --base-font-size: 2.2vh; 
+            --heavy-border: 4px solid #2a2a2a; /* 二重線を防ぐ太線設定 */
+            --thin-border: 1px solid #222;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); width: 100vw; height: 100vh; overflow: hidden; display: flex; flex-direction: column; font-family: 'DotGothic16', sans-serif; color: #fff; }
 
-        .bezel { background: var(--iron-panel); position: relative; flex-shrink: 0; border: var(--border-panel); margin: 2px; }
+        .bezel { background: var(--iron-panel); position: relative; flex-shrink: 0; border: var(--heavy-border); }
         .digit { position: relative; flex-shrink: 0; margin-right: 0.8vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
         .seg-h { width: 74%; height: 10%; left: 13%; } .seg-v { width: 15%; height: 38%; } 
@@ -33,60 +31,61 @@
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
         /* TOP SECTION */
-        #top-section { height: 38vh; display: flex; align-items: center; justify-content: center; }
+        #top-section { height: 38vh; display: flex; align-items: center; justify-content: center; border-bottom: none; }
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.85); } 
         .d-lg { width: 13vw; height: 30vh; } .d-sm { width: 3.5vw; height: 11vh; }  
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
+        .dot-date, .dot-time { background: var(--glow-core); box-shadow: var(--discharge); }
         .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 6vh; margin-bottom: 5vh; padding: 0 1vw; }
 
         /* MID SECTION */
-        #mid-section { height: 48vh; display: flex; flex-direction: column; background: #000; }
-        .h-row-unified { display: flex; height: 6vh; background: #000; border-bottom: var(--border-cell); }
-        .h-25 { width: 25%; font-size: var(--header-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; color: #666; }
-        .h-50 { width: 50%; background: #080808; display: flex; align-items: center; justify-content: center; border-left: var(--border-cell); border-right: var(--border-cell); gap: 1vw; }
-        .upd-label { font-size: 1.8vh; color: var(--glow-main); font-weight: bold; opacity: 0.8; }
+        #mid-section { height: 48vh; display: flex; flex-direction: column; background: #000; border-top: none; }
+        .h-row-unified { display: flex; height: 6vh; background: #000; border-bottom: var(--heavy-border); }
+        .h-25 { width: 25%; font-size: var(--base-font-size); font-weight: bold; display: flex; align-items: center; justify-content: center; color: #fff; }
+        .h-50 { width: 50%; background: #080808; display: flex; align-items: center; justify-content: center; border-left: var(--heavy-border); border-right: var(--heavy-border); gap: 1vw; }
+        .upd-label { font-size: 1.8vh; color: #fff; font-weight: bold; }
         .d-upd { width: 1.8vw; height: 3.5vh; margin-right: 0.3vw !important; }
+        .colon-upd { color: #fff; font-weight: bold; font-size: 2vh; padding: 0 2px; }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
-        .card { display: flex; flex-direction: column; border-right: var(--border-cell); }
+        .card { display: flex; flex-direction: column; border-right: var(--heavy-border); }
         .card:last-child { border-right: none; }
 
-        .w-main-row { height: 22vh; display: flex; align-items: center; border-bottom: var(--border-cell); }
-        .w-visual { width: 45%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: var(--border-cell); }
-        .w-icon { height: 7vh; font-size: 6.5vh; margin-bottom: 1.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main); }
-        .w-text { font-size: var(--base-ui-size); font-weight: bold; text-align: center; color: #bbb; padding: 0 0.5vw; }
+        .w-main-row { height: 22vh; display: flex; align-items: center; border-bottom: var(--thin-border); }
+        .w-visual { width: 45%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: var(--thin-border); }
+        .w-icon { height: 7vh; font-size: 6.5vh; margin-bottom: 1vh; color: #fff; text-shadow: var(--discharge); }
+        .w-text { font-size: 1.8vh; font-weight: bold; text-align: center; color: #fff; padding: 0 0.5vw; }
         .w-stats { width: 55%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; justify-content: center; }
         
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: center; }
-        .label-box { font-size: 1.6vh; font-weight: bold; padding: 2px 4px; min-width: 3.5vw; text-align: center; border-radius: 1px; margin-right: 1vw; }
-        .hi-label { color: #000; background: var(--glow-main); } 
-        .lo-label { color: #000; background: #aaa; } 
+        .label-box { font-size: 1.6vh; font-weight: bold; padding: 2px 4px; min-width: 4vw; text-align: center; border: 1px solid #fff; margin-right: 1vw; color: #fff; }
+        .hi-label { background: rgba(255,157,0,0.3); } 
 
-        .prob-section { display: flex; flex-direction: column; flex-grow: 1; }
-        .prob-main-title { background: #0a0a0a; color: #555; font-size: 1.4vh; height: 2.5vh; line-height: 2.5vh; text-align: center; letter-spacing: 0.4em; border-bottom: var(--border-cell); }
+        .prob-section { display: flex; flex-direction: column; flex-grow: 1; border-top: var(--thin-border); }
+        .prob-main-title { background: #0a0a0a; color: #fff; font-size: 1.4vh; height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.4em; border-bottom: var(--thin-border); }
         .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
-        .prob-item { border-right: var(--border-cell); display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; }
+        .prob-item { border-right: var(--thin-border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5vh; padding: 0.5vh; }
         .prob-item:last-child { border-right: none; }
-        .prob-label { font-size: 1.4vh; color: #444; font-weight: bold; }
+        .prob-label { font-size: 1.4vh; color: #fff; font-weight: bold; }
+        .prob-digits-row { display: flex; justify-content: center; align-items: center; width: 100%; }
 
         /* BOTTOM SECTION */
-        #bot-section { height: 12vh; display: flex; align-items: center; border-top: var(--border-panel); }
-        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; will-change: transform; }
+        #bot-section { height: 12vh; display: flex; align-items: center; border-top: none; }
+        .ticker { white-space: nowrap; font-size: 6vh; color: #fff; line-height: 12vh; text-shadow: var(--discharge); position: absolute; left: 0; will-change: transform; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        /* Admin / Common Digits */
-        #admin { position: fixed; bottom: 10px; right: 10px; opacity: 0; padding: 20px; transition: 0.3s; }
+        /* Admin UI */
+        #admin { position: fixed; bottom: 10px; right: 10px; opacity: 0; padding: 20px; transition: 0.3s; z-index: 500; }
         #admin:hover { opacity: 1; }
-        #admin button { background: #000; color: #444; border: 1px solid #444; padding: 5px 10px; font-family: 'DotGothic16'; cursor: pointer; }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        #editor-panel { background: #111; border: 1px solid #333; width: 80%; max-width: 500px; padding: 20px; }
-        input { background: #000; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin: 5px 0; font-family: 'DotGothic16'; }
+        #admin button { background: #000; color: #fff; border: 1px solid #fff; padding: 5px 10px; font-family: 'DotGothic16'; cursor: pointer; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
+        #editor-panel { background: #111; border: 2px solid #fff; width: 80%; max-width: 500px; padding: 20px; }
+        input { background: #000; border: 1px solid #444; color: #fff; padding: 10px; width: 100%; margin: 5px 0; font-family: 'DotGothic16'; }
 
-        .d-temp { width: 2.5vw; height: 7vh; } 
-        .d-prob { width: 1.8vw; height: 4.5vh; } 
-        .colon-upd { color: var(--glow-main); font-weight: bold; font-size: 2vh; text-shadow: var(--discharge); padding: 0 2px; }
+        .d-temp { width: 2.2vw; height: 6.5vh; } 
+        .d-prob { width: 1.6vw; height: 4vh; margin-right: 0.2vw !important; } 
     </style>
 </head>
 <body>
@@ -118,12 +117,12 @@
 
     <div id="overlay">
         <div id="editor-panel">
-            <h3 style="margin-bottom:15px;">TICKER SETTINGS</h3>
+            <h3 style="margin-bottom:15px; color:#fff;">TICKER SETTINGS</h3>
             <input type="text" id="t1" placeholder="Label 1"><input type="text" id="b1" placeholder="Message 1">
             <input type="text" id="t2" placeholder="Label 2"><input type="text" id="b2" placeholder="Message 2">
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
-                <button onclick="closeEditor()" style="padding:10px;">CANCEL</button>
-                <button onclick="saveData()" style="padding:10px; background:var(--glow-main); border:none;">SAVE</button>
+                <button onclick="closeEditor()" style="padding:10px; color:#fff; background:#333; border:none;">CANCEL</button>
+                <button onclick="saveData()" style="padding:10px; background:#fff; color:#000; border:none;">SAVE</button>
             </div>
         </div>
     </div>
@@ -200,7 +199,7 @@
                     });
 
                     dayData.push({maxT, minT, pops});
-                    const loLine = (i === 0) ? "" : `<div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>`;
+                    const loLine = (i === 0) ? "" : `<div class="temp-line"><div class="label-box">LO</div><div id="lo-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>`;
                     
                     html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weatherText}</div></div><div class="w-stats"><div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>${loLine}</div></div><div class="prob-section"><div class="prob-main-title">降水確率</div><div class="w-prob-grid">${pops.map((p,pi)=>`<div class="prob-item"><span class="prob-label">${pi*6}-${(pi+1)*6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}</div></div></div>`;
                 }
@@ -212,7 +211,7 @@
                         d.pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p));
                     });
                 }, 100);
-            } catch (e) { console.warn("Fetch failed, keeping last data.", e); }
+            } catch (e) { console.warn("Fetch failed.", e); }
         }
 
         function updateScheduler() {
