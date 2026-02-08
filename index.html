@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.3</title>
+    <title>Sapporo Industrial VFD v131.4</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -68,7 +68,6 @@
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; will-change: transform; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        /* Admin UI */
         #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0; transition: 0.4s; padding: 40px; }
         #admin:hover { opacity: 1; transform: scale(1.2); } 
         #admin button { background: #000; color: var(--glow-main); border: 3px solid var(--glow-main); padding: 10px 22px; font-family: 'DotGothic16'; cursor: pointer; border-radius: 6px; font-size: 2.2vh; font-weight: bold; }
@@ -107,7 +106,7 @@
     <div id="overlay">
         <div id="editor-panel">
             <h2 style="color:white; margin-bottom:20px;">MESSAGE EDITOR</h2>
-            <div class="input-row"><label>SET 1</label><input type="text" id="t1" placeholder="Label"><input type="text" id="b1" placeholder="Message"></div>
+            <div class="input-row"><label>SET 1</label><input type="text" id="t1"><input type="text" id="b1"></div>
             <div class="input-row"><label>SET 2</label><input type="text" id="t2"><input type="text" id="b2"></div>
             <div class="input-row"><label>SET 3</label><input type="text" id="t3"><input type="text" id="b3"></div>
             <div style="display:flex; justify-content:flex-end; gap:20px; margin-top:30px;">
@@ -145,7 +144,9 @@
         async function fetchWeather() {
             try {
                 const res = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
+                if (!res.ok) throw new Error("HTTP Error");
                 const data = await res.json();
+                
                 const reportDate = new Date(data[0].reportDatetime);
                 document.getElementById('update-label').innerText = `SAPPORO: ${reportDate.getHours().toString().padStart(2,'0')}:${reportDate.getMinutes().toString().padStart(2,'0')} UPDATED`;
 
@@ -201,13 +202,20 @@
                         d.pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p));
                     });
                 }, 100);
-            } catch (e) { console.error(e); }
+            } catch (e) { console.warn("Fetch failed, retaining last data.", e); }
         }
 
-        // Admin functions
+        function updateScheduler() {
+            const now = new Date();
+            // 奇数時 かつ 05分 の時に実行
+            if (now.getHours() % 2 !== 0 && now.getMinutes() === 5) {
+                fetchWeather();
+            }
+        }
+
         function openEditor() {
             const stored = localStorage.getItem(STORAGE_KEY);
-            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"SYSTEM ACTIVE"}, {t:"",b:""}, {t:"",b:""}];
+            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"VFD SYSTEM ACTIVE"}, {t:"",b:""}, {t:"",b:""}];
             for(let i=1; i<=3; i++) {
                 document.getElementById(`t${i}`).value = data[i-1]?.t || "";
                 document.getElementById(`b${i}`).value = data[i-1]?.b || "";
@@ -236,7 +244,9 @@
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
-            tick(); setInterval(tick, 1000); fetchWeather(); setInterval(fetchWeather, 3600000);
+            tick(); setInterval(tick, 1000); 
+            fetchWeather(); // 初回実行
+            setInterval(updateScheduler, 60000); // 1分ごとにスケジュールチェック
             initTicker(); window.addEventListener('resize', initTicker);
         };
     </script>
