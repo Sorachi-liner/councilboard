@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.13</title>
+    <title>Sapporo Industrial VFD v131.14</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,9 +15,9 @@
             --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer), 0 0 50px rgba(255, 34, 0, 0.4);
             --base-ui-size: 2.3vh; 
             --sub-ui-size: 1.5vh; 
-            --header-font-size: 2.4vh; 
+            --header-font-size: 2.8vh; /* TODY/TOMORROWと同じサイズに統合 */
             --border-main: 2px solid #333;
-            --border-thin: 1px solid #222; /* 薄い区切り線用 */
+            --border-thin: 1px solid #222;
             --section-gap: 7.6px solid #333;
         }
 
@@ -47,69 +47,59 @@
         .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
 
-        /* MID SECTION (Header/Grid alignment) */
+        /* MID SECTION */
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         .h-row-unified { display: flex; height: 6vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
-        .h-25 { width: 25%; font-size: 2.8vh; display: flex; align-items: center; justify-content: center; }
-        .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; gap: 0.5vw; }
-        .h-25-right { width: 25%; font-size: 2.8vh; display: flex; align-items: center; justify-content: center; }
+        .h-25 { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
+        .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; gap: 0.5vw; font-size: var(--header-font-size); }
+        .h-25-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
         
         .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); }
-        .d-upd { width: 1.5vw; height: 3vh; margin-right: 0.3vw !important; }
-        .colon-upd { color: var(--glow-main); font-size: 2.2vh; padding: 0 1px; }
+        .d-upd { width: 1.4vw; height: 2.8vh; margin-right: 0.2vw !important; }
+        .colon-upd { color: var(--glow-main); font-size: 2vh; padding: 0 1px; }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; width: 100%; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; width: 100%; }
         .card:last-child { border-right: none; }
 
-        /* 垂直線の一直線化 & 浮かせるセパレーター */
-        .w-main-row { height: 22vh; display: flex; align-items: center; border-bottom: var(--border-main); position: relative; }
-        .w-visual { 
-            width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            position: relative; 
+        /* メインエリア（余白活用） */
+        .w-main-row { 
+            height: 24vh; /* 降水確率から削った分を拡張 */
+            display: flex; align-items: center; border-bottom: var(--border-main); position: relative; 
+            padding: 1.5vh 0; /* 上下余白を追加 */
         }
-        /* 浮かせる薄い線 */
-        .w-visual::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 15%; /* 上下15%ずつ浮かせる */
-            height: 70%;
-            width: 1px;
-            background: #222;
-        }
+        .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+        .w-visual::after { content: ""; position: absolute; right: 0; top: 10%; height: 80%; width: 1px; background: #222; }
         
-        .w-icon { height: 8vh; font-size: 7vh; margin-bottom: 4vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
-        .w-text { height: 7.5vh; font-size: var(--base-ui-size); text-align: center; color: #fff; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
+        .w-icon { height: 9vh; font-size: 7.5vh; margin-bottom: 3.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
+        .w-text { height: 7vh; font-size: var(--base-ui-size); text-align: center; color: #fff; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
         
-        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
+        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
         .label-box { font-size: var(--base-ui-size); padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
         .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
         .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
 
-        /* 降水確率区切り */
+        /* 降水確率（余白を削り圧縮） */
         .prob-section { display: flex; flex-direction: column; flex-grow: 1; background: #000; }
-        .prob-main-title { background: #1a1a1a; color: #fff; font-size: var(--sub-ui-size); height: 3.5vh; line-height: 3.5vh; text-align: center; letter-spacing: 1.2em; border-bottom: 1px solid #333; opacity: 0.9; }
+        .prob-main-title { background: #1a1a1a; color: #fff; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 1.2em; border-bottom: 1px solid #333; opacity: 0.9; }
         .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
         .prob-item { 
-            background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; 
-            border-right: var(--border-thin); /* 4分割すべてに薄い線 */
-            padding: 0.5vh 0; 
+            background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            border-right: var(--border-thin);
+            padding: 0.2vh 0; /* 垂直パディングを最小化 */
         }
-        /* 中央の太い一直線ラインとの同期 */
         .prob-item:nth-child(2) { border-right: var(--border-main); }
         .prob-item:last-child { border-right: none; }
-        
-        .prob-label { font-size: var(--base-ui-size); color: #fff; width: 100%; text-align: center; }
-        .prob-digits-row { display: flex; justify-content: center; width: 100%; }
+        .prob-label { font-size: 2.1vh; color: #fff; width: 100%; text-align: center; margin-bottom: -0.2vh; } /* ラベルと数字の間隔を削る */
+        .prob-digits-row { display: flex; justify-content: center; width: 100%; transform: scale(0.95); }
 
         /* BOTTOM SECTION */
         #bot-section { height: 12vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
-        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; will-change: transform; }
+        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        /* Editor Overlay */
+        /* Editor */
         #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0; transition: 0.4s; padding: 40px; }
         #admin:hover { opacity: 1; } 
         #admin button { background: #000; color: var(--glow-main); border: 2px solid var(--glow-main); padding: 8px 16px; font-family: 'DotGothic16'; cursor: pointer; }
@@ -117,9 +107,9 @@
         #editor-panel { background: #111; border: 4px solid #444; width: 90%; max-width: 700px; padding: 30px; }
         .input-row { display: grid; grid-template-columns: 80px 150px 1fr; gap: 10px; align-items: center; margin-bottom: 15px; }
         input { background: #000; border: 2px solid #333; color: #fff; padding: 12px; font-family: 'DotGothic16'; width: 100%; font-size: 1.8vh; }
-        #editor-panel button { font-family: 'DotGothic16', sans-serif !important; cursor: pointer; text-transform: uppercase; }
+        #editor-panel button { font-family: 'DotGothic16', sans-serif !important; cursor: pointer; }
 
-        .d-temp { width: 2.8vw; height: 8vh; } .d-prob { width: 2.2vw; height: 5vh; } 
+        .d-temp { width: 2.8vw; height: 8vh; } .d-prob { width: 2.1vw; height: 4.5vh; } 
     </style>
 </head>
 <body>
