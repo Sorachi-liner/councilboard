@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.12</title>
+    <title>Sapporo Industrial VFD v131.13</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,7 +17,7 @@
             --sub-ui-size: 1.5vh; 
             --header-font-size: 2.4vh; 
             --border-main: 2px solid #333;
-            /* 太線を8pxから7.6px(5%削減)に微調整 */
+            --border-thin: 1px solid #222; /* 薄い区切り線用 */
             --section-gap: 7.6px solid #333;
         }
 
@@ -47,34 +47,60 @@
         .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
 
-        /* MID SECTION */
+        /* MID SECTION (Header/Grid alignment) */
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         .h-row-unified { display: flex; height: 6vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
-        .h-25, .h-25-right { width: 25%; font-size: 2.8vh; display: flex; align-items: center; justify-content: center; color: #fff; }
-        .h-50 { width: 50%; color: #fff; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; gap: 0.5vw; }
+        .h-25 { width: 25%; font-size: 2.8vh; display: flex; align-items: center; justify-content: center; }
+        .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; gap: 0.5vw; }
+        .h-25-right { width: 25%; font-size: 2.8vh; display: flex; align-items: center; justify-content: center; }
+        
         .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); }
         .d-upd { width: 1.5vw; height: 3vh; margin-right: 0.3vw !important; }
         .colon-upd { color: var(--glow-main); font-size: 2.2vh; padding: 0 1px; }
 
-        /* Weather Grid */
-        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
-        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
+        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; width: 100%; }
+        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; width: 100%; }
         .card:last-child { border-right: none; }
-        .w-main-row { height: 22vh; display: flex; align-items: center; border-bottom: var(--border-main); }
-        .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: var(--border-main); }
+
+        /* 垂直線の一直線化 & 浮かせるセパレーター */
+        .w-main-row { height: 22vh; display: flex; align-items: center; border-bottom: var(--border-main); position: relative; }
+        .w-visual { 
+            width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            position: relative; 
+        }
+        /* 浮かせる薄い線 */
+        .w-visual::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 15%; /* 上下15%ずつ浮かせる */
+            height: 70%;
+            width: 1px;
+            background: #222;
+        }
+        
         .w-icon { height: 8vh; font-size: 7vh; margin-bottom: 4vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
         .w-text { height: 7.5vh; font-size: var(--base-ui-size); text-align: center; color: #fff; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
+        
         .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.2vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
         .label-box { font-size: var(--base-ui-size); padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
         .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
         .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
 
+        /* 降水確率区切り */
         .prob-section { display: flex; flex-direction: column; flex-grow: 1; background: #000; }
         .prob-main-title { background: #1a1a1a; color: #fff; font-size: var(--sub-ui-size); height: 3.5vh; line-height: 3.5vh; text-align: center; letter-spacing: 1.2em; border-bottom: 1px solid #333; opacity: 0.9; }
         .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
-        .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; border-right: 1px solid #111; padding: 0.5vh 0; }
+        .prob-item { 
+            background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; 
+            border-right: var(--border-thin); /* 4分割すべてに薄い線 */
+            padding: 0.5vh 0; 
+        }
+        /* 中央の太い一直線ラインとの同期 */
         .prob-item:nth-child(2) { border-right: var(--border-main); }
+        .prob-item:last-child { border-right: none; }
+        
         .prob-label { font-size: var(--base-ui-size); color: #fff; width: 100%; text-align: center; }
         .prob-digits-row { display: flex; justify-content: center; width: 100%; }
 
@@ -87,19 +113,11 @@
         #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0; transition: 0.4s; padding: 40px; }
         #admin:hover { opacity: 1; } 
         #admin button { background: #000; color: var(--glow-main); border: 2px solid var(--glow-main); padding: 8px 16px; font-family: 'DotGothic16'; cursor: pointer; }
-        
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
         #editor-panel { background: #111; border: 4px solid #444; width: 90%; max-width: 700px; padding: 30px; }
         .input-row { display: grid; grid-template-columns: 80px 150px 1fr; gap: 10px; align-items: center; margin-bottom: 15px; }
-        .input-row label { color: #888; font-size: 1.6vh; letter-spacing: 0.1em; }
         input { background: #000; border: 2px solid #333; color: #fff; padding: 12px; font-family: 'DotGothic16'; width: 100%; font-size: 1.8vh; }
-        
-        /* エディタのボタンフォントをドットフォントに固定 */
-        #editor-panel button { 
-            font-family: 'DotGothic16', sans-serif !important; 
-            cursor: pointer; 
-            text-transform: uppercase;
-        }
+        #editor-panel button { font-family: 'DotGothic16', sans-serif !important; cursor: pointer; text-transform: uppercase; }
 
         .d-temp { width: 2.8vw; height: 8vh; } .d-prob { width: 2.2vw; height: 5vh; } 
     </style>
@@ -134,14 +152,14 @@
 
     <div id="overlay">
         <div id="editor-panel">
-            <h2 style="color:white; margin-bottom:20px; border-bottom: 2px solid #333; padding-bottom: 10px; font-size: 2vh; font-family: 'DotGothic16';">VFD MESSAGE EDITOR</h2>
+            <h2 style="color:white; margin-bottom:20px; border-bottom: 2px solid #333; padding-bottom: 10px; font-size: 2vh;">VFD MESSAGE EDITOR</h2>
             <div class="input-row">
-                <label>SET 1</label>
+                <label style="color:#888;">SET 1</label>
                 <input type="text" id="t1" placeholder="LABEL">
                 <input type="text" id="b1" placeholder="MESSAGE CONTENT">
             </div>
             <div class="input-row">
-                <label>SET 2</label>
+                <label style="color:#888;">SET 2</label>
                 <input type="text" id="t2" placeholder="LABEL">
                 <input type="text" id="b2" placeholder="MESSAGE CONTENT">
             </div>
@@ -233,16 +251,12 @@
             } catch (e) { console.warn("Sync error", e); }
         }
 
-        // データ更新スケジューラ: 毎時05分と35分に実行
         function updateScheduler() {
             const now = new Date();
             const min = now.getMinutes();
-            if (min === 5 || min === 35) {
-                // 同じ分の中で何度もリクエストを送らないためのガード
-                if (!window.lastFetchMin || window.lastFetchMin !== min) {
-                    fetchWeather();
-                    window.lastFetchMin = min;
-                }
+            if ((min === 5 || min === 35) && (!window.lastFetchMin || window.lastFetchMin !== min)) {
+                fetchWeather();
+                window.lastFetchMin = min;
             }
         }
 
@@ -255,11 +269,10 @@
         }
         function closeEditor() { document.getElementById('overlay').style.display = 'none'; }
         function saveData() {
-            const data = [
+            localStorage.setItem(STORAGE_KEY, JSON.stringify([
                 {t: document.getElementById('t1').value, b: document.getElementById('b1').value},
                 {t: document.getElementById('t2').value, b: document.getElementById('b2').value}
-            ];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            ]));
             closeEditor(); initTicker();
         }
         function initTicker() {
