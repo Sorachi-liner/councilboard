@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.20</title>
+    <title>Sapporo Industrial VFD v131.21</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -24,6 +24,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-weight: normal !important; }
         body { background-color: var(--bg-color); width: 100vw; height: 100vh; overflow: hidden; display: flex; flex-direction: column; font-family: 'DotGothic16', sans-serif; color: #fff; }
 
+        /* VFDパーツ */
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
@@ -33,12 +34,14 @@
         .seg-g { top: 45%; width: 64%; height: 10%; left: 18%; } 
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
 
+        /* ドットユニット */
+        .dot-unit { background: var(--led-dim-grad); border-radius: 50%; }
+
         /* TOP SECTION */
         #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
         .d-lg { width: 13.9vw; height: 32vh; } .d-sm { width: 3.63vw; height: 12vh; }  
-        .dot-unit { background: var(--led-dim-grad); border-radius: 50%; margin-right: 1.2vw; }
-        .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; } 
+        .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; margin-right: 1.2vw; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
 
@@ -49,15 +52,12 @@
         .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
         .h-25-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
         
-        /* Updated表示 10%再拡大版 */
+        /* Updated表示 拡大 & コロン丸型 */
         .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 0.8vw; }
-        .upd-paren { margin-right: 1.0vw; }
-        .d-upd { 
-            width: 1.52vw; /* 再拡大 */
-            height: 3.02vh; /* 再拡大 */
-            margin-right: 0.4vw !important; 
-        }
-        .colon-upd { color: #fff; font-size: 2.7vh; padding: 0 2px; text-shadow: var(--discharge); line-height: 1; margin-top: -0.1vh; }
+        .upd-paren { margin-right: 0.8vw; }
+        .d-upd { width: 1.68vw; height: 3.32vh; margin-right: 0.4vw !important; }
+        .colon-upd-box { display: flex; flex-direction: column; gap: 0.8vh; padding: 0 0.5vw; margin-right: 0.4vw; }
+        .dot-upd { width: 0.5vh; height: 0.5vh; }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; width: 100%; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; width: 100%; }
@@ -66,7 +66,6 @@
         .w-main-row { height: 25vh; display: flex; align-items: center; border-bottom: var(--border-main); position: relative; padding: 0.5vh 0; }
         .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
         .w-visual::after { content: ""; position: absolute; right: 0; top: 10%; height: 80%; width: 1px; background: #222; }
-        
         .w-icon { height: 9vh; font-size: 7.5vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
         .w-text { height: 7vh; font-size: var(--base-ui-size); text-align: center; color: #fff; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
         
@@ -90,7 +89,7 @@
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        /* Editor */
+        /* VFD Editor */
         #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0; transition: 0.4s; padding: 40px; }
         #admin:hover { opacity: 1; } 
         #admin button { background: #000; color: var(--glow-main); border: 2px solid var(--glow-main); padding: 8px 16px; font-family: 'DotGothic16'; cursor: pointer; }
@@ -268,7 +267,13 @@
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
-            document.getElementById('upd-time-vfd').innerHTML = build('d-upd').repeat(2)+'<div class="colon-upd">:</div>'+build('d-upd').repeat(2);
+            
+            // 更新時刻用VFD構築 (コロンをドット型に)
+            document.getElementById('upd-time-vfd').innerHTML = 
+                build('d-upd').repeat(2) + 
+                '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + 
+                build('d-upd').repeat(2);
+
             tick(); setInterval(tick, 1000); fetchWeather(); setInterval(updateScheduler, 60000); initTicker();
         };
     </script>
