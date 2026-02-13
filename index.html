@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.22</title>
+    <title>Sapporo Industrial VFD v131.24</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -23,7 +23,7 @@
         body { background-color: var(--bg-color); width: 100vw; height: 100vh; overflow: hidden; display: flex; flex-direction: column; font-family: 'DotGothic16', sans-serif; color: #fff; }
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
-        .digit { position: relative; flex-shrink: 0; margin-right: 1.2vw; } 
+        .digit { position: relative; flex-shrink: 0; margin-right: 1.0vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
         .seg-h { width: 74%; height: 10%; left: 13%; } .seg-v { width: 15%; height: 38%; } 
         .seg-a { top: 2%; } .seg-b { top: 6%; right: 2%; } .seg-c { bottom: 6%; right: 2%; }
@@ -47,38 +47,52 @@
         .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
         .h-25-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
         
-        /* 更新時刻表示エリア (日付追加 & 拡大継続) */
+        /* 更新時刻表示エリア [MM.DD HH:MM] */
         .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 0.6vw; font-size: 2.8vh; }
         .upd-paren { margin-right: 0.5vw; }
         .d-upd { width: 1.5vw; height: 3.2vh; margin-right: 0.3vw !important; }
         .colon-upd-box { display: flex; flex-direction: column; gap: 0.8vh; padding: 0 0.3vw; margin-right: 0.3vw; }
         .dot-upd { width: 0.5vh; height: 0.5vh; }
-        .hyphen-upd { width: 1vw; height: 0.4vh; background: var(--led-dim-grad); margin: 0 0.4vw; align-self: center; }
+        .dot-date-upd { width: 0.5vh; height: 0.5vh; margin-top: 2.5vh; margin-left: 0.2vw; margin-right: 0.5vw; } /* 日付のドット */
 
-        /* AMeDAS実況エリア */
+        /* 天気・AMeDAS共通レイアウト */
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; }
-        .w-main-row { height: 25vh; display: flex; align-items: center; border-bottom: var(--border-main); }
-        .w-visual { width: 50%; text-align: center; border-right: 1px solid #222; }
-        .w-icon { font-size: 8vh; margin-bottom: 1vh; text-shadow: 0 0 20px var(--glow-main); }
-        .w-text { font-size: 2.2vh; color: #aaa; }
-        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: flex-end; padding-right: 2vw; }
+        .card:last-child { border-right: none; }
 
-        .amedas-section { flex-grow: 1; display: flex; flex-direction: column; background: #050505; }
-        .amedas-title { background: #1a1a1a; font-size: 1.4vh; height: 2.8vh; line-height: 2.8vh; text-align: center; letter-spacing: 0.8em; border-bottom: 1px solid #333; }
-        .amedas-content { display: flex; flex-grow: 1; align-items: center; justify-content: space-around; padding: 0 1vw; }
-        .amedas-item { display: flex; flex-direction: column; align-items: center; gap: 1vh; }
-        .amedas-label { font-size: 1.6vh; color: #888; }
-        .amedas-digits { display: flex; align-items: flex-end; transform: scale(0.85); }
-        .amedas-unit { font-size: 1.8vh; color: #fff; margin-left: 0.5vw; margin-bottom: 0.5vh; }
+        /* 上部: 天気アイコンとHI/LO */
+        .w-main-row { height: 22vh; display: flex; align-items: center; border-bottom: var(--border-main); }
+        .w-visual { width: 45%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #222; height: 100%; }
+        .w-icon { font-size: 7vh; margin-bottom: 1vh; text-shadow: 0 0 20px var(--glow-main); color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main); }
+        .w-text { font-size: 2vh; color: #aaa; text-align: center; }
+        .w-stats { width: 55%; display: flex; flex-direction: column; gap: 1vh; align-items: flex-end; justify-content: center; padding-right: 2vw; }
+        .temp-row { display: flex; align-items: center; }
+        .temp-label { font-size: 2vh; margin-right: 1vw; width: 3vw; text-align: right; }
+
+        /* 下部: AMeDAS / 降水確率エリア */
+        .sub-section { flex-grow: 1; display: flex; flex-direction: column; background: #050505; }
+        .sub-title { background: #151515; color: #888; font-size: 1.4vh; height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.2em; border-bottom: 1px solid #333; }
+        .sub-content { display: flex; flex-grow: 1; align-items: center; justify-content: space-around; }
+        
+        /* AMeDAS専用表示 */
+        .amedas-box { display: flex; flex-direction: column; align-items: center; gap: 0.5vh; }
+        .amedas-val-row { display: flex; align-items: flex-end; }
+        .amedas-unit { font-size: 1.8vh; color: #666; margin-left: 0.5vw; margin-bottom: 0.5vh; }
+
+        /* 降水確率専用表示 (Tomorrow用) */
+        .prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; height: 100%; }
+        .prob-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #222; }
+        .prob-cell:last-child { border-right: none; }
+        .prob-time { font-size: 1.5vh; color: #666; margin-bottom: 0.5vh; }
 
         /* BOTTOM SECTION */
         #bot-section { height: 12vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
         .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        .d-temp { width: 2.8vw; height: 8vh; }
-        .d-amedas { width: 2.4vw; height: 5.5vh; }
+        .d-temp { width: 2.0vw; height: 6vh; }
+        .d-amedas { width: 2.2vw; height: 6vh; margin-right: 0.4vw; }
+        .d-prob { width: 1.2vw; height: 3vh; margin-right: 0.2vw; }
     </style>
 </head>
 <body>
@@ -95,20 +109,21 @@
         <div class="h-row-unified">
             <div class="h-25">TODAY</div>
             <div class="h-50">
-                <span class="upd-label-main">AMeDAS SAPPORO</span>
+                <span class="upd-label-main">SAPPORO</span>
                 <span class="upd-paren">[</span>
                 <div id="upd-time-vfd" style="display:flex; align-items:center;"></div>
                 <span style="margin-left:0.4vw;">]</span>
             </div>
             <div class="h-25-right">TOMORROW</div>
         </div>
-        <div class="weather-grid" id="weatherGrid"></div>
+        <div class="weather-grid" id="weatherGrid">
+            </div>
     </div>
 
-    <div id="bot-section" class="bezel"><div class="ticker" id="ticker-text"></div></div>
+    <div id="bot-section" class="bezel"><div class="ticker" id="ticker-text">INITIALIZING VFD SYSTEM...</div></div>
 
     <script>
-        const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],'.':[0,0,0,0,0,0,0],' ':[0,0,0,0,0,0,0]};
+        const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
 
         function build(cls) {
             let h = `<div class="digit ${cls}">`;
@@ -131,94 +146,238 @@
             draw(document.getElementById('sec-group'), String(n.getSeconds()).padStart(2,'0'));
         }
 
-        async function fetchAllData() {
+        // 天気予報(Forecast) と アメダス(AMeDAS) を統合して表示
+        async function updateWeather() {
+            const grid = document.getElementById('weatherGrid');
+            const ticker = document.getElementById('ticker-text');
+            const updEl = document.getElementById('upd-time-vfd');
+
             try {
-                // 1. 天気予報の取得
+                // 1. 予報データの取得 (JMA Forecast)
                 const fRes = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
+                if (!fRes.ok) throw new Error("Forecast fetch failed");
                 const fData = await fRes.json();
                 
-                // 2. AMeDAS実況データの取得
-                const aTimeRes = await fetch("https://www.jma.go.jp/bosai/amedas/data/latest_time.json");
-                const aTime = await aTimeRes.json();
-                const aDataRes = await fetch(`https://www.jma.go.jp/bosai/amedas/data/map/${aTime.replace(/:/g,'')}.json`);
-                const aData = await aDataRes.json();
-                const sap = aData["14163"]; // 札幌地点
+                // 2. AMeDAS最新時刻の取得 (Latest Time)
+                // テキスト形式で取得されることがあるため対応
+                const tRes = await fetch("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt");
+                if (!tRes.ok) throw new Error("AMeDAS time fetch failed");
+                let tStr = await tRes.text();
+                // "2023-10-10T10:00:00+09:00" のような形式をパース
+                const latestDate = new Date(tStr);
+                
+                // マップ用時刻フォーマット (YYYYMMDDHHmm00)
+                const yyyy = latestDate.getFullYear();
+                const mm = String(latestDate.getMonth()+1).padStart(2,'0');
+                const dd = String(latestDate.getDate()).padStart(2,'0');
+                const hh = String(latestDate.getHours()).padStart(2,'0');
+                const mi = String(latestDate.getMinutes()).padStart(2,'0');
+                const mapKey = `${yyyy}${mm}${dd}${hh}${mi}00`;
 
-                // 更新時刻表示の描画 (月-日 時:分)
-                const rd = new Date(fData[0].reportDatetime);
-                const updStr = (rd.getMonth()+1).toString().padStart(2,'0') + rd.getDate().toString().padStart(2,'0') + rd.getHours().toString().padStart(2,'0') + rd.getMinutes().toString().padStart(2,'0');
-                const updEl = document.getElementById('upd-time-vfd');
-                updEl.innerHTML = build('d-upd').repeat(2) + '<div class="hyphen-upd on"></div>' + build('d-upd').repeat(2) + '<div style="width:0.8vw"></div>' + build('d-upd').repeat(2) + '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + build('d-upd').repeat(2);
-                draw(updEl, updStr);
+                // 3. AMeDAS観測データの取得 (Map Data)
+                const mRes = await fetch(`https://www.jma.go.jp/bosai/amedas/data/map/${mapKey}.json`);
+                if (!mRes.ok) throw new Error("AMeDAS map fetch failed");
+                const mData = await mRes.json();
+                const sap = mData["14163"]; // 札幌(14163)のデータ
 
-                // メイングリッド描画
-                const grid = document.getElementById('weatherGrid');
+                if (!sap) throw new Error("Sapporo data not found");
+
+                // --- 描画処理開始 ---
+
+                // 更新時刻 (VFD) [MM.DD HH:MM]
+                // 日付と時刻の間にドットを置くレイアウト
+                updEl.innerHTML = 
+                    build('d-upd').repeat(2) + // 月
+                    '<div class="dot-unit dot-date-upd on"></div>' + 
+                    build('d-upd').repeat(2) + // 日
+                    '<div style="width:1.5vw"></div>' + // 空白
+                    build('d-upd').repeat(2) + // 時
+                    '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + 
+                    build('d-upd').repeat(2); // 分
+
+                const updMonth = String(latestDate.getMonth()+1).padStart(2,'0');
+                const updDay = String(latestDate.getDate()).padStart(2,'0');
+                const updHour = String(latestDate.getHours()).padStart(2,'0');
+                const updMin = String(latestDate.getMinutes()).padStart(2,'0');
+                draw(updEl, updMonth + updDay + updHour + updMin);
+
+                // --- カードの生成 ---
                 let html = "";
+                
+                // LOOP: 今日(0)と明日(1)
                 for(let i=0; i<2; i++) {
-                    const wText = fData[0].timeSeries[0].areas[0].weathers[i];
+                    const area = fData[0].timeSeries[0].areas[0];
+                    const weathers = area.weathers;
+                    const wText = weathers[i] || "---";
                     const icon = wText.includes('雪') ? '❄️' : wText.includes('雨') ? '☔' : wText.includes('曇') ? '☁️' : '☀️';
+                    
                     const temps = fData[0].timeSeries[2].areas[0].temps;
-                    const hiT = temps[i*2] || "--";
-                    const loT = temps[i*2+1] || "--";
+                    // temps配列は [今日朝, 今日日中, 明日朝, 明日日中] のように入るが、時間帯によるため簡易処理
+                    // i=0(今日): temps[0]=High(or Low depending on time), temps[1]=Low/High... 
+                    // JMAのtempsは不定長なため、存在確認して表示
+                    let t1 = temps[i*2] || "--";
+                    let t2 = temps[i*2+1] || "--";
+
+                    // 下部セクションの分岐
+                    let subHtml = "";
+                    if (i === 0) {
+                        // TODAY: AMeDAS実況
+                        const nowTemp = (sap.temp && sap.temp[0] !== undefined) ? sap.temp[0].toFixed(1) : "--.-";
+                        const nowWind = (sap.wind && sap.wind[0] !== undefined) ? sap.wind[0].toFixed(1) : "--.-";
+                        
+                        // マイナス気温の処理: マイナスの場合は先頭に'-'をつけるが、VFDロジックで対応
+                        const tempStr = String(Math.round(nowTemp)).padStart(2,' '); // 整数丸めで表示
+                        const windStr = String(Math.round(nowWind)).padStart(2,' '); 
+
+                        subHtml = `
+                            <div class="sub-section">
+                                <div class="sub-title">AMeDAS REALTIME</div>
+                                <div class="sub-content">
+                                    <div class="amedas-box">
+                                        <div style="font-size:1.5vh;color:#aaa;">TEMP</div>
+                                        <div class="amedas-val-row">
+                                            <div id="am-temp" style="display:flex;">${build('d-amedas').repeat(3)}</div>
+                                            <span class="amedas-unit">℃</span>
+                                        </div>
+                                    </div>
+                                    <div class="amedas-box">
+                                        <div style="font-size:1.5vh;color:#aaa;">WIND</div>
+                                        <div class="amedas-val-row">
+                                            <div id="am-wind" style="display:flex;">${build('d-amedas').repeat(2)}</div>
+                                            <span class="amedas-unit">m/s</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // TOMORROW: 降水確率 (AMeDASデータがないため)
+                        const pops = fData[0].timeSeries[1].areas[0].pops; 
+                        // 明日の確率: インデックス 2,3,4,5 あたり (時間による)
+                        // 簡易的に後半を取得
+                        let pList = ["--","--","--","--"];
+                        // timeDefinesを確認するのが正確だが、ここでは簡易マッピング
+                        if (pops.length >= 4) {
+                             // データ構造が可変なので、末尾4つを取るなどの安全策
+                             // 通常 Today(0,6,12,18) Tomorrow(0,6,12,18) で計8つ
+                             // 現在時刻により減る。
+                             // 末尾から4つを明日とする(簡易実装)
+                             const len = pops.length;
+                             if(len >= 4) {
+                                 pList = [pops[len-4], pops[len-3], pops[len-2], pops[len-1]];
+                             }
+                        }
+                        
+                        subHtml = `
+                            <div class="sub-section">
+                                <div class="sub-title">PRECIP PROB</div>
+                                <div class="sub-content">
+                                    <div class="prob-grid">
+                                        ${pList.map((p, idx) => `
+                                            <div class="prob-cell">
+                                                <div class="prob-time">${idx*6}-${(idx+1)*6}</div>
+                                                <div id="prob-${idx}" style="display:flex; transform:scale(0.8);">${build('d-prob').repeat(2)}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
 
                     html += `
                         <div class="card">
                             <div class="w-main-row">
-                                <div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${wText}</div></div>
+                                <div class="w-visual">
+                                    <div class="w-icon">${icon}</div>
+                                    <div class="w-text">${wText}</div>
+                                </div>
                                 <div class="w-stats">
-                                    <div style="display:flex;align-items:center;"><span style="color:var(--glow-main);margin-right:1vw;">HI</span><div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
-                                    <div style="display:flex;align-items:center;"><span style="color:#fff;margin-right:1vw;">LO</span><div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
-                                </div>
-                            </div>
-                            <div class="amedas-section">
-                                <div class="amedas-title">AMeDAS 実況値 (札幌)</div>
-                                <div class="amedas-content">
-                                    <div class="amedas-item">
-                                        <span class="amedas-label">TEMP</span>
-                                        <div class="amedas-digits"><div id="am-t-${i}" style="display:flex">${build('d-amedas').repeat(3)}</div><span class="amedas-unit">℃</span></div>
+                                    <div class="temp-row">
+                                        <span class="temp-label" style="color:var(--glow-main)">HI</span>
+                                        <div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div>
                                     </div>
-                                    <div class="amedas-item">
-                                        <span class="amedas-label">WIND</span>
-                                        <div class="amedas-digits"><div id="am-w-${i}" style="display:flex">${build('d-amedas').repeat(2)}</div><span class="amedas-unit">m/s</span></div>
+                                    <div class="temp-row">
+                                        <span class="temp-label" style="color:#fff">LO</span>
+                                        <div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div>
                                     </div>
                                 </div>
                             </div>
-                        </div>`;
+                            ${subHtml}
+                        </div>
+                    `;
                 }
+
                 grid.innerHTML = html;
 
-                // 数値の流し込み
+                // 値の描画 (HTML生成後に実行)
                 setTimeout(() => {
-                    for(let i=0; i<2; i++) {
-                        draw(document.getElementById(`hi-${i}`), fData[0].timeSeries[2].areas[0].temps[i*2]);
-                        draw(document.getElementById(`lo-${i}`), fData[0].timeSeries[2].areas[0].temps[i*2+1]);
-                        draw(document.getElementById(`am-t-${i}`), Math.round(sap.temp[0]));
-                        draw(document.getElementById(`am-w-${i}`), Math.round(sap.wind[0]));
-                    }
-                }, 100);
+                    // Forecast Temps
+                    const temps = fData[0].timeSeries[2].areas[0].temps;
+                    draw(document.getElementById(`hi-0`), temps[0]||"--");
+                    draw(document.getElementById(`lo-0`), temps[1]||"--");
+                    draw(document.getElementById(`hi-1`), temps[2]||"--");
+                    draw(document.getElementById(`lo-1`), temps[3]||"--");
 
-                document.getElementById('ticker-text').innerText = `【AMeDAS】札幌市 中央区 気温:${sap.temp[0]}℃ 風速:${sap.wind[0]}m/s 降水量:${sap.precipitation1h[0]}mm　　【NOTICE】10分おきに最新の観測データを取得しています。`;
-            } catch (e) { console.error("Sync Error", e); }
+                    // AMeDAS (Today)
+                    if(document.getElementById('am-temp')) {
+                        draw(document.getElementById('am-temp'), Math.round(sap.temp[0]));
+                        draw(document.getElementById('am-wind'), Math.round(sap.wind[0]));
+                    }
+
+                    // Prob (Tomorrow)
+                    const pops = fData[0].timeSeries[1].areas[0].pops;
+                    if(pops.length >= 4) {
+                        const len = pops.length;
+                        const tomPops = [pops[len-4], pops[len-3], pops[len-2], pops[len-1]];
+                        tomPops.forEach((p, idx) => {
+                            const el = document.getElementById(`prob-${idx}`);
+                            if(el) draw(el, p);
+                        });
+                    }
+                }, 50);
+
+                ticker.innerText = `【SAPPORO VFD】Current Temp: ${sap.temp[0]}℃  Wind: ${sap.wind[0]}m/s (${["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"][sap.windDirection[0]-1]||""})  Updated: ${updHour}:${updMin}`;
+                
+            } catch (e) {
+                console.error(e);
+                // エラー時のフォールバック表示（画面真っ白回避）
+                if (grid.innerHTML === "") {
+                    grid.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#333;">DATA FETCH ERROR - RETRYING...</div>`;
+                }
+            }
         }
 
         function scheduler() {
             const now = new Date();
             const min = now.getMinutes();
-            // 03分から10分おき (3, 13, 23, 33, 43, 53)
+            // 毎時 3, 13, 23... 分に更新
             if (min % 10 === 3) {
                 if (window.lastUpdate !== min) {
-                    fetchAllData();
+                    console.log("Scheduled Update Triggered");
+                    updateWeather();
                     window.lastUpdate = min;
                 }
             }
         }
 
         window.onload = () => {
+            // 時計初期化
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
-            tick(); setInterval(tick, 1000);
-            fetchAllData(); setInterval(scheduler, 30000); 
+            document.getElementById('upd-time-vfd').innerHTML = build('d-upd').repeat(6); // 仮
+
+            tick(); 
+            setInterval(tick, 1000);
+            
+            updateWeather(); // 初回実行
+            setInterval(scheduler, 10000); // スケジューラ監視 (10秒毎)
+            
+            // Ticker Animation Speed
+            const ticker = document.getElementById('ticker-text');
+            const duration = (window.innerWidth + 1000) / 150; 
+            ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
         };
     </script>
 </body>
