@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.28</title>
+    <title>Sapporo Industrial VFD v131.29</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,7 +13,8 @@
             --glow-main: #ff9d00; 
             --glow-outer: #ff3300;
             --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer), 0 0 50px rgba(255, 34, 0, 0.4);
-            --header-font-size: 3.3vh; 
+            --header-font-size: 3.32vh; 
+            --base-ui-size: 2.3vh;
             --border-main: 2px solid #333;
             --section-gap: 7.6px solid #333;
         }
@@ -31,49 +32,62 @@
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; }
 
-        #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
+        /* CLOCK SECTION */
+        #top-section { height: 38vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
-        .d-lg { width: 13.9vw; height: 32vh; } .d-sm { width: 3.63vw; height: 12vh; }  
+        .d-lg { width: 13vw; height: 30vh; } .d-sm { width: 3.6vw; height: 12vh; }  
         .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; margin-right: 1.2vw; } 
         .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
 
-        #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
-        .h-row-unified { display: flex; height: 8vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
-        .h-side { width: 20%; font-size: 2.8vh; display: flex; align-items: center; justify-content: center; color: #666; }
-        .h-center { width: 60%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: space-around; padding: 0 1vw; }
+        /* CENTER HEADER AREA - ENHANCED VISIBILITY */
+        #mid-section { height: 48vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
+        .h-row-unified { display: flex; height: 9vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
+        .h-side { width: 18%; font-size: 3vh; display: flex; align-items: center; justify-content: center; letter-spacing: 4px; color: #888; background: #050505; }
+        .h-center { width: 64%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; position: relative; }
         
-        .amedas-header-box { display: flex; align-items: center; gap: 0.8vw; }
-        .amedas-label { font-size: 1.8vh; color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); }
-        .amedas-unit { font-size: 1.6vh; color: #555; }
-        .d-upd { width: 1.8vw; height: 3.8vh; margin-right: 0.4vw !important; }
+        .header-info-group { display: flex; align-items: center; gap: 1.5vw; }
+        .label-vfd-pair { display: flex; align-items: center; gap: 0.8vw; }
+        .h-label { font-size: 2vh; color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); }
+        .h-label-sub { font-size: 1.8vh; color: #fff; opacity: 0.8; }
+        .d-upd { width: 1.6vw; height: 3.32vh; margin-right: 0.3vw !important; }
+        .colon-upd-box { display: flex; flex-direction: column; gap: 0.8vh; padding: 0 0.3vw; margin-right: 0.3vw; }
+        .dot-upd { width: 0.5vh; height: 0.5vh; }
+        .hyphen-upd { width: 0.8vw; height: 0.4vh; background: var(--led-dim-grad); margin: 0 0.4vw; }
 
+        /* WEATHER GRID */
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
-        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; justify-content: center; }
+        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
         .card:last-child { border-right: none; }
-        
-        .w-main-row { display: flex; align-items: center; height: 100%; }
-        .w-visual { width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #222; height: 80%; }
-        .w-icon { font-size: 8vh; margin-bottom: 2vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main); }
-        .w-text { font-size: 2.2vh; text-align: center; color: #fff; padding: 0 1vw; }
-        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 3vh; align-items: flex-end; padding-right: 2vw; }
-        
+        .w-main-row { display: flex; align-items: center; height: 75%; }
+        .w-visual { width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #222; height: 90%; }
+        .w-icon { font-size: 7vh; margin-bottom: 1.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main); }
+        .w-text { font-size: 2.1vh; text-align: center; line-height: 1.2; padding: 0 0.5vw; }
+        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 2.5vh; align-items: flex-end; padding-right: 2vw; }
+
         .temp-line { display: flex; align-items: center; }
         .label-box { font-size: 2vh; padding: 4px 8px; min-width: 5vw; text-align: center; border-radius: 2px; margin-right: 1.2vw; }
         .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
         .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
-        .d-temp { width: 3.2vw; height: 9vh; }
+        .d-temp { width: 3.2vw; height: 8.5vh; }
 
-        #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0.05; transition: 0.4s; }
-        #admin:hover { opacity: 1; }
-        #admin button { background: #000; color: var(--glow-main); border: 1px solid var(--glow-main); padding: 5px 10px; font-family: 'DotGothic16'; cursor: pointer; }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        #editor { background: #111; border: 2px solid #444; padding: 20px; width: 400px; }
-        input { background: #000; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin-bottom: 15px; font-family: 'DotGothic16'; }
+        /* AMeDAS LIVE BAR */
+        .amedas-bar { height: 25%; background: #000; border-top: 1px solid #222; display: flex; align-items: center; justify-content: space-around; }
+        .amedas-unit-val { display: flex; align-items: flex-end; gap: 0.5vw; }
+        .amedas-tag { font-size: 1.6vh; color: #666; letter-spacing: 2px; }
+        .d-sub { width: 2.2vw; height: 4.8vh; }
 
-        #bot-section { height: 12vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
-        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; position: absolute; }
+        /* TICKER & ADMIN */
+        #bot-section { height: 10vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
+        .ticker { white-space: nowrap; font-size: 5vh; color: var(--glow-main); line-height: 10vh; position: absolute; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+        #admin { position: fixed; bottom: 15px; right: 15px; z-index: 100; opacity: 0.1; transition: 0.4s; }
+        #admin:hover { opacity: 1; }
+        #admin button { background: #111; color: var(--glow-main); border: 1px solid #444; padding: 5px 10px; cursor: pointer; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
+        #editor { background: #111; border: 2px solid #555; padding: 25px; width: 500px; }
+        input { background: #000; border: 1px solid #333; color: #fff; padding: 12px; width: 100%; margin-bottom: 15px; font-family: 'DotGothic16'; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -90,15 +104,13 @@
         <div class="h-row-unified">
             <div class="h-side">TODAY</div>
             <div class="h-center">
-                <div class="amedas-header-box">
-                    <span class="amedas-label">AMeDAS TEMP</span>
-                    <div id="am-t-header" style="display:flex;"></div>
-                    <span class="amedas-unit">℃</span>
-                </div>
-                <div class="amedas-header-box">
-                    <span class="amedas-label">WIND</span>
-                    <div id="am-w-header" style="display:flex;"></div>
-                    <span class="amedas-unit">m/s</span>
+                <div class="header-info-group">
+                    <span class="h-label">SAPPORO</span>
+                    <div class="label-vfd-pair">
+                        <span class="h-label-sub">(UPDATED</span>
+                        <div id="upd-time-vfd" style="display:flex; align-items:center;"></div>
+                        <span class="h-label-sub">)</span>
+                    </div>
                 </div>
             </div>
             <div class="h-side">TOMORROW</div>
@@ -125,10 +137,9 @@
         function draw(parent, str) {
             if (!parent) return;
             const ds = parent.querySelectorAll('.digit');
-            const val = String(str).replace(/[^0-9-]/g, '');
-            const ts = val.padStart(ds.length, ' ');
+            const val = String(str).replace(/[^0-9-]/g, '').padStart(ds.length, ' ');
             for(let i=0; i<ds.length; i++) {
-                const pat = MAP[ts[i]] || MAP[' '];
+                const pat = MAP[val[i]] || MAP[' '];
                 ds[i].querySelectorAll('.seg').forEach((s, idx) => s.classList.toggle('on', !!pat[idx]));
             }
         }
@@ -137,53 +148,56 @@
             try {
                 const fRes = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
                 const fData = await fRes.json();
-                
-                let sap = { temp:[0], wind:[0] };
-                try {
-                    const tRes = await fetch("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt");
-                    const tStr = (await tRes.text()).trim();
-                    const aKey = tStr.replace(/[-T:Z+]/g, '').substring(0, 12) + "00";
-                    const aRes = await fetch(`https://www.jma.go.jp/bosai/amedas/data/map/${aKey}.json`);
-                    const aData = await aRes.json();
-                    sap = aData["14163"] || sap;
-                } catch(e) { console.warn("AMeDAS Fail"); }
+                const tRes = await fetch("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt");
+                const tStr = (await tRes.text()).trim();
+                const aKey = tStr.replace(/[-T:Z+]/g, '').substring(0, 12) + "00";
+                const aRes = await fetch(`https://www.jma.go.jp/bosai/amedas/data/map/${aKey}.json`);
+                const aData = await aRes.json();
+                const sap = aData["14163"] || {temp:[0], wind:[0]};
+
+                // Updated Time VFD Construction
+                const dt = new Date(tStr);
+                const mmdd = (dt.getMonth()+1).toString().padStart(2,'0') + dt.getDate().toString().padStart(2,'0');
+                const hhmm = dt.getHours().toString().padStart(2,'0') + dt.getMinutes().toString().padStart(2,'0');
+                document.getElementById('upd-time-vfd').innerHTML = build('d-upd').repeat(2) + build('d-upd').repeat(2) + '<div class="hyphen-upd on"></div>' + build('d-upd').repeat(2) + '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + build('d-upd').repeat(2);
 
                 const grid = document.getElementById('weatherGrid');
                 const temps = fData[0].timeSeries[2].areas[0].temps; 
-
                 let html = "";
+
                 for(let i=0; i<2; i++){
-                    const wText = fData[0].timeSeries[0].areas[0].weathers[i] || "---";
-                    const icon = wText.includes('雪') ? '❄️' : wText.includes('雨') ? '☔' : wText.includes('曇') ? '☁️' : '☀️';
-                    html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${wText}</div></div>
+                    const weather = fData[0].timeSeries[0].areas[0].weathers[i];
+                    const icon = weather.includes('雪') ? '❄️' : weather.includes('雨') ? '☔' : weather.includes('曇') ? '☁️' : '☀️';
+                    let amedasPart = (i===0) ? `
+                        <div class="amedas-bar">
+                            <div class="amedas-unit-val"><span class="amedas-tag">AMeDAS TEMP</span><div id="am-t" style="display:flex">${build('d-sub').repeat(3)}</div><span class="amedas-tag">℃</span></div>
+                            <div class="amedas-unit-val"><span class="amedas-tag">WIND</span><div id="am-w" style="display:flex">${build('d-sub').repeat(2)}</div><span class="amedas-tag">m/s</span></div>
+                        </div>` : `<div class="amedas-bar" style="justify-content:center; color:#444; font-size:1.4vh; letter-spacing:2px;">STATION: SAPPORO 14163</div>`;
+
+                    html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weather}</div></div>
                         <div class="w-stats">
                             <div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
                             <div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
-                        </div></div></div>`;
+                        </div></div>${amedasPart}</div>`;
                 }
                 grid.innerHTML = html;
-                document.getElementById('am-t-header').innerHTML = build('d-upd').repeat(3);
-                document.getElementById('am-w-header').innerHTML = build('d-upd').repeat(2);
-                
-                setTimeout(() => {
-                    draw(document.getElementById('am-t-header'), Math.round(sap.temp[0]));
-                    draw(document.getElementById('am-w-header'), Math.round(sap.wind[0]));
-                    // 明日は temps[2]=最低, temps[3]=最高。今日は temps[0]=最高, temps[1]=最低 (朝更新時)
-                    draw(document.getElementById(`hi-0`), temps[0] || "--");
-                    draw(document.getElementById(`lo-0`), temps[1] || "--");
-                    draw(document.getElementById(`hi-1`), temps[3] || "--"); // 明日最高
-                    draw(document.getElementById(`lo-1`), temps[2] || "--"); // 明日最低
-                }, 100);
 
-            } catch(e) { console.error("Main update fail", e); }
+                setTimeout(() => {
+                    draw(document.getElementById('upd-time-vfd'), mmdd + hhmm);
+                    draw(document.getElementById('am-t'), Math.round(sap.temp[0]));
+                    draw(document.getElementById('am-w'), Math.round(sap.wind[0]));
+                    draw(document.getElementById(`hi-0`), temps[0]); draw(document.getElementById(`lo-0`), temps[1]);
+                    draw(document.getElementById(`hi-1`), temps[3]); draw(document.getElementById(`lo-1`), temps[2]);
+                }, 50);
+
+            } catch(e) { console.error(e); }
         }
 
         function saveMsg() { localStorage.setItem('vfd_msg', document.getElementById('msg-input').value); document.getElementById('overlay').style.display='none'; initTicker(); }
         function initTicker() {
             const t = document.getElementById('ticker-text');
-            t.innerText = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD SYSTEM // REALTIME MONITORING ACTIVE";
-            t.style.animation = 'none'; t.offsetHeight; 
-            const duration = (window.innerWidth + t.offsetWidth)/120;
+            t.innerText = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD SYSTEM // STANDBY FOR UPDATES //";
+            const duration = (window.innerWidth + t.offsetWidth)/100;
             t.style.animation = `ticker-anim ${duration}s linear infinite`;
         }
 
