@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.21 Rev.Final-2</title>
+    <title>Sapporo Industrial VFD v131.21 Rev.Alignment</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -34,6 +34,7 @@
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; }
 
+        /* Clock Section */
         #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
         .d-lg { width: 13.9vw; height: 32vh; } .d-sm { width: 3.63vw; height: 12vh; }  
@@ -41,46 +42,51 @@
         .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
 
+        /* Unified Grid Layout */
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
-        .h-row-unified { display: flex; height: 7vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
-        .h-side { width: 15%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; letter-spacing: 0.1em; }
-        .h-50 { width: 70%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
         
-        /* ヘッダー内テキストのサイズ調整 */
+        /* 線を一直線にするための共通幅設定: 左25% - 中央50% - 右25% */
+        .h-row-unified { display: flex; height: 7vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
+        .h-left { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
+        .h-mid  { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
+        .h-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
+        
         .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 1vw; }
-        .upd-paren { margin-right: 0.8vw; color: #888; }
+        .upd-paren { margin-right: 0.5vw; color: #888; font-size: 2.5vh; }
         .d-upd { width: 1.4vw; height: 2.8vh; margin-right: 0.3vw !important; }
-        .colon-upd-box { display: flex; flex-direction: column; gap: 0.6vh; padding: 0 0.3vw; margin-right: 0.3vw; }
         .dot-upd { width: 0.45vh; height: 0.45vh; }
         .dot-date-upd { width: 0.45vh; height: 0.45vh; margin-top: 2vh; margin-right: 0.5vw; }
+        .colon-upd-box { display: flex; flex-direction: column; gap: 0.6vh; padding: 0 0.3vw; margin-right: 0.3vw; }
 
-        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; width: 100%; }
-        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; width: 100%; }
+        .weather-grid { display: flex; flex-grow: 1; width: 100%; }
+        .card { width: 50%; display: flex; flex-direction: column; height: 100%; border-right: var(--border-main); }
         .card:last-child { border-right: none; }
 
-        .w-main-row { height: 25vh; display: flex; align-items: center; border-bottom: var(--border-main); position: relative; padding: 0.5vh 0; }
-        .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        .w-visual::after { content: ""; position: absolute; right: 0; top: 10%; height: 80%; width: 1px; background: #222; }
+        /* .21スタイルの垂直境界線: アイコン50% | 気温50% で、親の25%ラインと一致させる */
+        .w-main-row { height: 25vh; display: flex; border-bottom: var(--border-main); }
+        .w-visual { width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: var(--border-main); }
+        .w-stats  { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; justify-content: center; }
+
         .w-icon { height: 9vh; font-size: 7.5vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
-        .w-text { height: 7vh; font-size: var(--base-ui-size); text-align: center; color: #fff; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
+        .w-text { height: 7vh; font-size: var(--base-ui-size); text-align: center; color: #fff; padding: 0 1vw; line-height: 1.1; }
         
-        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; justify-content: center; }
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
         .label-box { font-size: var(--base-ui-size); padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
         .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
         .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
 
         .prob-section { display: flex; flex-direction: column; flex-grow: 1; background: #000; }
-        .prob-main-title { background: #1a1a1a; color: #fff; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 1.2em; border-bottom: 1px solid #333; opacity: 0.9; }
+        .prob-main-title { background: #1a1a1a; color: #fff; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 1.2em; border-bottom: 1px solid #333; }
         .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
-        .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; border-right: var(--border-thin); padding: 0; }
+        .prob-item { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; border-right: var(--border-thin); }
+        /* 降水確率の2スロット目(12時)に太い線を入れ、ヘッダーの25%/50%の区切りと合わせる */
         .prob-item:nth-child(2) { border-right: var(--border-main); }
         .prob-item:last-child { border-right: none; }
-        .prob-label { font-size: 2.2vh; color: #fff; width: 100%; text-align: center; line-height: 1; } 
-        .prob-digits-row { display: flex; justify-content: center; width: 100%; transform: scale(0.9); }
+        .prob-label { font-size: 2.2vh; color: #fff; } 
+        .prob-digits-row { display: flex; justify-content: center; transform: scale(0.9); }
 
         #bot-section { height: 12vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
-        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; }
+        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
         .d-temp { width: 2.8vw; height: 8vh; } .d-prob { width: 2.1vw; height: 4.5vh; } 
@@ -98,14 +104,14 @@
 
     <div id="mid-section" class="bezel">
         <div class="h-row-unified">
-            <div class="h-side">TODAY</div>
-            <div class="h-50">
+            <div class="h-left">TODAY</div>
+            <div class="h-mid">
                 <span class="upd-label-main">Sapporo Weather</span>
                 <span class="upd-paren">(Updated</span>
                 <div id="upd-vfd-full" style="display:flex; align-items:center;"></div>
                 <span style="margin-left:0.4vw;" class="upd-paren">)</span>
             </div>
-            <div class="h-side">TOMORROW</div>
+            <div class="h-right">TOMORROW</div>
         </div>
         <div class="weather-grid" id="weatherGrid"></div>
     </div>
@@ -201,7 +207,7 @@
 
         function initTicker() {
             const ticker = document.getElementById('ticker-text');
-            ticker.innerText = "【INFO】SAPPORO INDUSTRIAL VFD v131.21 // HEADER UI UNIFIED";
+            ticker.innerText = "【SYSTEM】SAPPORO INDUSTRIAL VFD v131.21 // GRID ALIGNMENT COMPLETE";
             const duration = (window.innerWidth + ticker.offsetWidth) / 180;
             ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
         }
@@ -211,7 +217,6 @@
             document.getElementById('time-group').innerHTML = build('d-lg', 2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg', 2);
             document.getElementById('sec-group').innerHTML = build('d-sm', 2);
             
-            // 更新日時：スラッシュの代わりにドット(dot-date-upd)を使用
             document.getElementById('upd-vfd-full').innerHTML = 
                 build('d-upd', 2) + '<div class="dot-unit dot-date-upd on"></div>' + build('d-upd', 2) + 
                 '<span style="width:1.2vw"></span>' +
