@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.21-Restored</title>
+    <title>Sapporo Industrial VFD v131.25</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,7 +14,6 @@
             --glow-outer: #ff3300;
             --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer), 0 0 50px rgba(255, 34, 0, 0.4);
             --base-ui-size: 2.3vh; 
-            --sub-ui-size: 1.5vh; 
             --header-font-size: 3.3vh; 
             --border-main: 2px solid #333;
             --border-thin: 1px solid #222;
@@ -49,44 +48,44 @@
         .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
         .h-25-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
         
-        /* Updated表示 */
         .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 0.8vw; }
-        .upd-paren { margin-right: 0.8vw; }
         .d-upd { width: 1.68vw; height: 3.32vh; margin-right: 0.4vw !important; }
         .colon-upd-box { display: flex; flex-direction: column; gap: 0.8vh; padding: 0 0.5vw; margin-right: 0.4vw; }
         .dot-upd { width: 0.5vh; height: 0.5vh; }
 
-        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; width: 100%; }
-        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; width: 100%; }
-        .card:last-child { border-right: none; }
+        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
+        .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
+        .w-main-row { height: 24vh; display: flex; align-items: center; border-bottom: var(--border-main); }
+        .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #222; }
+        .w-icon { font-size: 7.5vh; margin-bottom: 1.5vh; text-shadow: 0 0 15px var(--glow-main); color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main); }
+        .w-text { font-size: 2vh; text-align: center; color: #fff; padding: 0 1vw; }
+        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; }
 
-        .w-main-row { height: 25vh; display: flex; align-items: center; border-bottom: var(--border-main); position: relative; padding: 0.5vh 0; }
-        .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        .w-visual::after { content: ""; position: absolute; right: 0; top: 10%; height: 80%; width: 1px; background: #222; }
-        .w-icon { height: 9vh; font-size: 7.5vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
-        .w-text { height: 7vh; font-size: var(--base-ui-size); text-align: center; color: #fff; padding: 0 1vw; line-height: 1.1; display: flex; align-items: flex-start; justify-content: center; }
-        
-        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; justify-content: center; }
-        .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
-        .label-box { font-size: var(--base-ui-size); padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
-        .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
-        .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
+        /* AMeDAS / PRECIP Section */
+        .sub-panel { flex-grow: 1; display: flex; flex-direction: column; background: #000; }
+        .sub-title { background: #1a1a1a; color: #fff; font-size: 1.5vh; height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.8em; border-bottom: 1px solid #333; }
+        .sub-content { display: flex; flex-grow: 1; align-items: center; justify-content: space-around; }
 
-        .prob-section { display: flex; flex-direction: column; flex-grow: 1; background: #000; }
-        .prob-main-title { background: #1a1a1a; color: #fff; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 1.2em; border-bottom: 1px solid #333; opacity: 0.9; }
-        .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
-        .prob-item { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; border-right: var(--border-thin); padding: 0; }
-        .prob-item:nth-child(2) { border-right: var(--border-main); }
-        .prob-item:last-child { border-right: none; }
-        .prob-label { font-size: 2.2vh; color: #fff; width: 100%; text-align: center; line-height: 1; } 
-        .prob-digits-row { display: flex; justify-content: center; width: 100%; transform: scale(0.9); }
+        .amedas-item { display: flex; flex-direction: column; align-items: center; }
+        .amedas-label { font-size: 1.4vh; color: #888; margin-bottom: 0.5vh; }
+        .amedas-val { display: flex; align-items: flex-end; }
+        .amedas-unit { font-size: 1.6vh; color: #666; margin-left: 0.4vw; }
 
-        /* BOTTOM SECTION */
+        /* ADMIN */
+        #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0.1; transition: 0.4s; }
+        #admin:hover { opacity: 1; }
+        #admin button { background: #000; color: var(--glow-main); border: 2px solid var(--glow-main); padding: 8px 16px; font-family: 'DotGothic16'; cursor: pointer; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+        #editor { background: #111; border: 4px solid #444; padding: 30px; width: 80%; max-width: 600px; }
+        input { background: #000; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin-bottom: 15px; font-family: 'DotGothic16'; }
+
+        /* BOTTOM */
         #bot-section { height: 12vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
-        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; left: 0; }
+        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; position: absolute; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        .d-temp { width: 2.8vw; height: 8vh; } .d-prob { width: 2.1vw; height: 4.5vh; } 
+        .d-temp { width: 2.8vw; height: 7vh; }
+        .d-sub { width: 2.2vw; height: 5vh; }
     </style>
 </head>
 <body>
@@ -103,10 +102,8 @@
         <div class="h-row-unified">
             <div class="h-25">TODAY</div>
             <div class="h-50">
-                <span class="upd-label-main">Sapporo Weather</span>
-                <span class="upd-paren">(Updated</span>
-                <div id="upd-time-vfd" style="display:flex; align-items:center;"></div>
-                <span style="margin-left:0.4vw;">)</span>
+                <span class="upd-label-main">SAPPORO</span>
+                <span id="upd-time-vfd" style="display:flex; align-items:center;"></span>
             </div>
             <div class="h-25-right">TOMORROW</div>
         </div>
@@ -115,61 +112,94 @@
 
     <div id="bot-section" class="bezel"><div class="ticker" id="ticker-text"></div></div>
 
+    <div id="admin"><button onclick="document.getElementById('overlay').style.display='flex'">EDIT</button></div>
+
+    <div id="overlay">
+        <div id="editor">
+            <h3 style="margin-bottom:15px;">TICKER MESSAGE</h3>
+            <input type="text" id="msg-input" placeholder="Enter message here...">
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button onclick="document.getElementById('overlay').style.display='none'" style="padding:10px;">CANCEL</button>
+                <button onclick="saveMsg()" style="padding:10px; background:var(--glow-main); border:none; color:black;">SAVE</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
-
-        function build(cls) {
-            let h = `<div class="digit ${cls}">`;
-            ['a','b','c','d','e','f','g'].forEach(s => h += `<div class="seg seg-${s} ${['a','d','g'].includes(s)?'seg-h':'seg-v'}"></div>`);
-            return h + `</div>`;
-        }
+        function build(cls) { return `<div class="digit ${cls}">${['a','b','c','d','e','f','g'].map(s=>`<div class="seg seg-${s} ${['a','d','g'].includes(s)?'seg-h':'seg-v'}"></div>`).join('')}</div>`; }
         function draw(parent, str) {
             if (!parent) return;
             const ds = parent.querySelectorAll('.digit');
             const ts = String(str).padStart(ds.length, ' ');
             for(let i=0; i<ds.length; i++) {
                 const pat = MAP[ts[i]] || MAP[' '];
-                ds[i].querySelectorAll('.seg').forEach((s, idx) => { s.classList.toggle('on', !!pat[idx]); });
+                ds[i].querySelectorAll('.seg').forEach((s, idx) => s.classList.toggle('on', !!pat[idx]));
             }
         }
-        function tick() {
-            const n = new Date();
-            draw(document.getElementById('date-group'), String(n.getFullYear()).slice(-2)+String(n.getMonth()+1).padStart(2,'0')+String(n.getDate()).padStart(2,'0'));
-            draw(document.getElementById('time-group'), String(n.getHours()).padStart(2,'0')+String(n.getMinutes()).padStart(2,'0'));
-            draw(document.getElementById('sec-group'), String(n.getSeconds()).padStart(2,'0'));
-        }
 
-        async function fetchWeather() {
+        async function updateAll() {
             try {
-                const res = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
-                const data = await res.json();
-                const rd = new Date(data[0].reportDatetime);
-                draw(document.getElementById('upd-time-vfd'), rd.getHours().toString().padStart(2,'0')+rd.getMinutes().toString().padStart(2,'0'));
+                // Forecast
+                const fRes = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
+                const fData = await fRes.json();
+                
+                // AMeDAS
+                const tRes = await fetch("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt");
+                const tStr = await tRes.text();
+                const aKey = tStr.replace(/[-T:Z+]/g, '').substring(0, 12) + "00";
+                const aRes = await fetch(`https://www.jma.go.jp/bosai/amedas/data/map/${aKey}.json`);
+                const aData = await aRes.json();
+                const sap = aData["14163"];
 
                 const grid = document.getElementById('weatherGrid');
-                let html = ""; const dayData = [];
+                let html = "";
+                for(let i=0; i<2; i++){
+                    const wText = fData[0].timeSeries[0].areas[0].weathers[i];
+                    const icon = wText.includes('雪') ? '❄️' : wText.includes('雨') ? '☔' : wText.includes('曇') ? '☁️' : '☀️';
+                    const temps = fData[0].timeSeries[2].areas[0].temps;
+                    
+                    let subPart = "";
+                    if(i===0) {
+                        subPart = `<div class="sub-panel"><div class="sub-title">AMeDAS (SAPPORO)</div><div class="sub-content">
+                            <div class="amedas-item"><span class="amedas-label">TEMP</span><div class="amedas-val"><div id="am-t" style="display:flex">${build('d-sub').repeat(3)}</div><span class="amedas-unit">℃</span></div></div>
+                            <div class="amedas-item"><span class="amedas-label">WIND</span><div class="amedas-val"><div id="am-w" style="display:flex">${build('d-sub').repeat(2)}</div><span class="amedas-unit">m/s</span></div></div>
+                        </div></div>`;
+                    } else {
+                        subPart = `<div class="sub-panel"><div class="sub-title">PRECIP PROB</div><div class="sub-content">
+                            ${[0,1,2,3].map(j=>`<div class="amedas-item"><span class="amedas-label">${j*6}h</span><div id="p-${j}" style="display:flex">${build('d-sub').repeat(2)}</div></div>`).join('')}
+                        </div></div>`;
+                    }
 
-                for(let i=0; i<2; i++) {
-                    const weatherText = data[0].timeSeries[0].areas[0].weathers[i];
-                    const icon = weatherText.includes('雪') ? '❄️' : weatherText.includes('雨') ? '☔' : weatherText.includes('曇') ? '☁️' : '☀️';
-                    const temps = data[0].timeSeries[2].areas[0].temps;
-                    const hiT = temps[i*2] || "--";
-                    const loT = temps[i*2+1] || "--";
-                    const pops = data[0].timeSeries[1].areas[0].pops.slice(i*4, (i+1)*4);
-
-                    dayData.push({hiT, loT, pops});
-                    const loHtml = (i === 0) ? "" : `<div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>`;
-                    html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weatherText}</div></div><div class="w-stats"><div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex;">${build('d-temp').repeat(3)}</div></div>${loHtml}</div></div><div class="prob-section"><div class="prob-main-title">降水確率</div><div class="w-prob-grid">${[0,6,12,18].map((h,pi)=>`<div class="prob-item"><span class="prob-label">${h}-${h+6}</span><div id="p-row-${i}-${pi}" class="prob-digits-row">${build('d-prob').repeat(3)}</div></div>`).join('')}</div></div></div>`;
+                    html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${wText}</div></div>
+                        <div class="w-stats"><div style="display:flex;align-items:center;"><span style="color:var(--glow-main);margin-right:1vw;">HI</span><div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
+                        <div style="display:flex;align-items:center;"><span style="color:#fff;margin-right:1vw;">LO</span><div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div></div></div>${subPart}</div>`;
                 }
                 grid.innerHTML = html;
+
                 setTimeout(() => {
-                    dayData.forEach((d, i) => {
-                        draw(document.getElementById(`hi-${i}`), d.hiT); 
-                        if(i !== 0) draw(document.getElementById(`lo-${i}`), d.loT);
-                        d.pops.forEach((p, pi) => draw(document.getElementById(`p-row-${i}-${pi}`), p));
-                    });
-                }, 100);
-            } catch (e) { console.warn(e); }
+                    draw(document.getElementById('upd-time-vfd'), new Date(tStr).getHours().toString().padStart(2,'0')+new Date(tStr).getMinutes().toString().padStart(2,'0'));
+                    for(let i=0; i<2; i++) {
+                        draw(document.getElementById(`hi-${i}`), fData[0].timeSeries[2].areas[0].temps[i*2] || "--");
+                        draw(document.getElementById(`lo-${i}`), fData[0].timeSeries[2].areas[0].temps[i*2+1] || "--");
+                    }
+                    draw(document.getElementById('am-t'), Math.round(sap.temp[0]));
+                    draw(document.getElementById('am-w'), Math.round(sap.wind[0]));
+                    const pops = fData[0].timeSeries[1].areas[0].pops;
+                    [0,1,2,3].forEach(j => draw(document.getElementById(`p-${j}`), pops[pops.length-4+j] || "--"));
+                }, 50);
+            } catch(e) { console.error(e); }
+        }
+
+        function saveMsg() {
+            localStorage.setItem('vfd_msg', document.getElementById('msg-input').value);
+            document.getElementById('overlay').style.display='none';
+            initTicker();
+        }
+        function initTicker() {
+            const t = document.getElementById('ticker-text');
+            t.innerText = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD SYSTEM ACTIVE // STANDBY FOR UPDATES";
+            t.style.animation = `ticker-anim ${(window.innerWidth + t.offsetWidth)/150}s linear infinite`;
         }
 
         window.onload = () => {
@@ -177,7 +207,15 @@
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
             document.getElementById('upd-time-vfd').innerHTML = build('d-upd').repeat(2) + '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + build('d-upd').repeat(2);
-            tick(); setInterval(tick, 1000); fetchWeather();
+            
+            setInterval(() => {
+                const n = new Date();
+                draw(document.getElementById('date-group'), String(n.getFullYear()).slice(-2)+String(n.getMonth()+1).padStart(2,'0')+String(n.getDate()).padStart(2,'0'));
+                draw(document.getElementById('time-group'), String(n.getHours()).padStart(2,'0')+String(n.getMinutes()).padStart(2,'0'));
+                draw(document.getElementById('sec-group'), String(n.getSeconds()).padStart(2,'0'));
+                if(n.getMinutes() % 10 === 3 && n.getSeconds() === 0) updateAll();
+            }, 1000);
+            updateAll(); initTicker();
         };
     </script>
 </body>
