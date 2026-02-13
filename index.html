@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.25</title>
+    <title>Sapporo Industrial VFD v131.26</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,10 +13,9 @@
             --glow-main: #ff9d00; 
             --glow-outer: #ff3300;
             --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer), 0 0 50px rgba(255, 34, 0, 0.4);
-            --base-ui-size: 2.3vh; 
             --header-font-size: 3.3vh; 
+            --base-ui-size: 2.3vh;
             --border-main: 2px solid #333;
-            --border-thin: 1px solid #222;
             --section-gap: 7.6px solid #333;
         }
 
@@ -48,43 +47,45 @@
         .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
         .h-25-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
         
+        /* Updated表示 (日付追加版) */
         .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 0.8vw; }
-        .d-upd { width: 1.68vw; height: 3.32vh; margin-right: 0.4vw !important; }
-        .colon-upd-box { display: flex; flex-direction: column; gap: 0.8vh; padding: 0 0.5vw; margin-right: 0.4vw; }
+        .d-upd { width: 1.6vw; height: 3.3vh; margin-right: 0.3vw !important; }
+        .colon-upd-box { display: flex; flex-direction: column; gap: 0.8vh; padding: 0 0.3vw; margin-right: 0.3vw; }
         .dot-upd { width: 0.5vh; height: 0.5vh; }
+        .hyphen-upd { width: 0.8vw; height: 0.4vh; background: var(--led-dim-grad); margin: 0 0.4vw; align-self: center; }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
-        .w-main-row { height: 24vh; display: flex; align-items: center; border-bottom: var(--border-main); }
+        .card:last-child { border-right: none; }
+        
+        /* v131.21 Style Temperature UI */
+        .w-main-row { height: 25vh; display: flex; align-items: center; border-bottom: var(--border-main); }
         .w-visual { width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #222; }
         .w-icon { font-size: 7.5vh; margin-bottom: 1.5vh; text-shadow: 0 0 15px var(--glow-main); color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main); }
         .w-text { font-size: 2vh; text-align: center; color: #fff; padding: 0 1vw; }
-        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; }
+        .w-stats { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: flex-end; padding-right: 1.5vw; }
+        .temp-line { display: flex; align-items: center; }
+        .label-box { font-size: var(--base-ui-size); padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
+        .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
+        .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
 
-        /* AMeDAS / PRECIP Section */
         .sub-panel { flex-grow: 1; display: flex; flex-direction: column; background: #000; }
-        .sub-title { background: #1a1a1a; color: #fff; font-size: 1.5vh; height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.8em; border-bottom: 1px solid #333; }
+        .sub-title { background: #1a1a1a; color: #fff; font-size: 1.4vh; height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 0.6em; border-bottom: 1px solid #333; }
         .sub-content { display: flex; flex-grow: 1; align-items: center; justify-content: space-around; }
 
-        .amedas-item { display: flex; flex-direction: column; align-items: center; }
-        .amedas-label { font-size: 1.4vh; color: #888; margin-bottom: 0.5vh; }
-        .amedas-val { display: flex; align-items: flex-end; }
-        .amedas-unit { font-size: 1.6vh; color: #666; margin-left: 0.4vw; }
-
-        /* ADMIN */
+        /* ADMIN & TICKER */
         #admin { position: fixed; bottom: 20px; right: 20px; z-index: 100; opacity: 0.1; transition: 0.4s; }
         #admin:hover { opacity: 1; }
         #admin button { background: #000; color: var(--glow-main); border: 2px solid var(--glow-main); padding: 8px 16px; font-family: 'DotGothic16'; cursor: pointer; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
         #editor { background: #111; border: 4px solid #444; padding: 30px; width: 80%; max-width: 600px; }
-        input { background: #000; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin-bottom: 15px; font-family: 'DotGothic16'; }
+        input { background: #000; border: 1px solid #333; color: #fff; padding: 10px; width: 100%; margin-bottom: 15px; font-family: 'DotGothic16'; font-size: 20px; }
 
-        /* BOTTOM */
         #bot-section { height: 12vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
-        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; position: absolute; }
+        .ticker { white-space: nowrap; font-size: 6vh; color: var(--glow-main); line-height: 12vh; text-shadow: 0 0 15px var(--glow-outer); position: absolute; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        .d-temp { width: 2.8vw; height: 7vh; }
+        .d-temp { width: 2.8vw; height: 8vh; }
         .d-sub { width: 2.2vw; height: 5vh; }
     </style>
 </head>
@@ -103,7 +104,7 @@
             <div class="h-25">TODAY</div>
             <div class="h-50">
                 <span class="upd-label-main">SAPPORO</span>
-                <span id="upd-time-vfd" style="display:flex; align-items:center;"></span>
+                <div id="upd-time-vfd" style="display:flex; align-items:center;"></div>
             </div>
             <div class="h-25-right">TOMORROW</div>
         </div>
@@ -113,14 +114,12 @@
     <div id="bot-section" class="bezel"><div class="ticker" id="ticker-text"></div></div>
 
     <div id="admin"><button onclick="document.getElementById('overlay').style.display='flex'">EDIT</button></div>
-
     <div id="overlay">
         <div id="editor">
-            <h3 style="margin-bottom:15px;">TICKER MESSAGE</h3>
-            <input type="text" id="msg-input" placeholder="Enter message here...">
+            <input type="text" id="msg-input" placeholder="TICKER MESSAGE...">
             <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button onclick="document.getElementById('overlay').style.display='none'" style="padding:10px;">CANCEL</button>
-                <button onclick="saveMsg()" style="padding:10px; background:var(--glow-main); border:none; color:black;">SAVE</button>
+                <button onclick="document.getElementById('overlay').style.display='none'" style="padding:10px; font-family:'DotGothic16';">CANCEL</button>
+                <button onclick="saveMsg()" style="padding:10px; background:var(--glow-main); border:none; color:black; font-family:'DotGothic16';">SAVE</button>
             </div>
         </div>
     </div>
@@ -140,11 +139,8 @@
 
         async function updateAll() {
             try {
-                // Forecast
                 const fRes = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json");
                 const fData = await fRes.json();
-                
-                // AMeDAS
                 const tRes = await fetch("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt");
                 const tStr = await tRes.text();
                 const aKey = tStr.replace(/[-T:Z+]/g, '').substring(0, 12) + "00";
@@ -154,34 +150,42 @@
 
                 const grid = document.getElementById('weatherGrid');
                 let html = "";
+                const temps = fData[0].timeSeries[2].areas[0].temps; // [今日朝, 今日日中, 明日朝, 明日日中]
+
                 for(let i=0; i<2; i++){
-                    const wText = fData[0].timeSeries[0].areas[0].weathers[i];
+                    const area = fData[0].timeSeries[0].areas[0];
+                    const wText = area.weathers[i];
                     const icon = wText.includes('雪') ? '❄️' : wText.includes('雨') ? '☔' : wText.includes('曇') ? '☁️' : '☀️';
-                    const temps = fData[0].timeSeries[2].areas[0].temps;
                     
+                    // v131.21 UI Structure
+                    let hiT = temps[i*2]; let loT = temps[i*2+1];
                     let subPart = "";
                     if(i===0) {
                         subPart = `<div class="sub-panel"><div class="sub-title">AMeDAS (SAPPORO)</div><div class="sub-content">
-                            <div class="amedas-item"><span class="amedas-label">TEMP</span><div class="amedas-val"><div id="am-t" style="display:flex">${build('d-sub').repeat(3)}</div><span class="amedas-unit">℃</span></div></div>
-                            <div class="amedas-item"><span class="amedas-label">WIND</span><div class="amedas-val"><div id="am-w" style="display:flex">${build('d-sub').repeat(2)}</div><span class="amedas-unit">m/s</span></div></div>
+                            <div style="display:flex;flex-direction:column;align-items:center;"><span style="font-size:1.4vh;color:#888;">TEMP</span><div style="display:flex;align-items:flex-end;"><div id="am-t" style="display:flex">${build('d-sub').repeat(3)}</div><span style="font-size:1.6vh;margin-left:0.4vw;">℃</span></div></div>
+                            <div style="display:flex;flex-direction:column;align-items:center;"><span style="font-size:1.4vh;color:#888;">WIND</span><div style="display:flex;align-items:flex-end;"><div id="am-w" style="display:flex">${build('d-sub').repeat(2)}</div><span style="font-size:1.6vh;margin-left:0.4vw;">m/s</span></div></div>
                         </div></div>`;
                     } else {
                         subPart = `<div class="sub-panel"><div class="sub-title">PRECIP PROB</div><div class="sub-content">
-                            ${[0,1,2,3].map(j=>`<div class="amedas-item"><span class="amedas-label">${j*6}h</span><div id="p-${j}" style="display:flex">${build('d-sub').repeat(2)}</div></div>`).join('')}
+                            ${[0,1,2,3].map(j=>`<div style="display:flex;flex-direction:column;align-items:center;"><span style="font-size:1.4vh;color:#888;">${j*6}h</span><div id="p-${j}" style="display:flex">${build('d-sub').repeat(2)}</div></div>`).join('')}
                         </div></div>`;
                     }
 
                     html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${wText}</div></div>
-                        <div class="w-stats"><div style="display:flex;align-items:center;"><span style="color:var(--glow-main);margin-right:1vw;">HI</span><div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
-                        <div style="display:flex;align-items:center;"><span style="color:#fff;margin-right:1vw;">LO</span><div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div></div></div>${subPart}</div>`;
+                        <div class="w-stats">
+                            <div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
+                            <div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
+                        </div></div>${subPart}</div>`;
                 }
                 grid.innerHTML = html;
 
                 setTimeout(() => {
-                    draw(document.getElementById('upd-time-vfd'), new Date(tStr).getHours().toString().padStart(2,'0')+new Date(tStr).getMinutes().toString().padStart(2,'0'));
+                    const dt = new Date(tStr);
+                    const updStr = (dt.getMonth()+1).toString().padStart(2,'0') + dt.getDate().toString().padStart(2,'0') + dt.getHours().toString().padStart(2,'0') + dt.getMinutes().toString().padStart(2,'0');
+                    draw(document.getElementById('upd-time-vfd'), updStr);
                     for(let i=0; i<2; i++) {
-                        draw(document.getElementById(`hi-${i}`), fData[0].timeSeries[2].areas[0].temps[i*2] || "--");
-                        draw(document.getElementById(`lo-${i}`), fData[0].timeSeries[2].areas[0].temps[i*2+1] || "--");
+                        draw(document.getElementById(`hi-${i}`), temps[i*2] || "--");
+                        draw(document.getElementById(`lo-${i}`), temps[i*2+1] || "--");
                     }
                     draw(document.getElementById('am-t'), Math.round(sap.temp[0]));
                     draw(document.getElementById('am-w'), Math.round(sap.wind[0]));
@@ -191,11 +195,7 @@
             } catch(e) { console.error(e); }
         }
 
-        function saveMsg() {
-            localStorage.setItem('vfd_msg', document.getElementById('msg-input').value);
-            document.getElementById('overlay').style.display='none';
-            initTicker();
-        }
+        function saveMsg() { localStorage.setItem('vfd_msg', document.getElementById('msg-input').value); document.getElementById('overlay').style.display='none'; initTicker(); }
         function initTicker() {
             const t = document.getElementById('ticker-text');
             t.innerText = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD SYSTEM ACTIVE // STANDBY FOR UPDATES";
@@ -206,7 +206,7 @@
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
-            document.getElementById('upd-time-vfd').innerHTML = build('d-upd').repeat(2) + '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + build('d-upd').repeat(2);
+            document.getElementById('upd-time-vfd').innerHTML = build('d-upd').repeat(2) + '<div class="hyphen-upd on"></div>' + build('d-upd').repeat(2) + '<div style="width:1.2vw"></div>' + build('d-upd').repeat(2) + '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + build('d-upd').repeat(2);
             
             setInterval(() => {
                 const n = new Date();
