@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.21 Rev.Final</title>
+    <title>Sapporo Industrial VFD v131.21 Rev.Final-2</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -43,16 +43,16 @@
 
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         .h-row-unified { display: flex; height: 7vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
-        .h-25 { width: 20%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
-        .h-50 { width: 60%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
-        .h-25-right { width: 20%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
+        .h-side { width: 15%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; letter-spacing: 0.1em; }
+        .h-50 { width: 70%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
         
-        .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 0.8vw; font-size: 2.4vh; }
-        .upd-paren { margin-right: 0.8vw; font-size: 2.2vh; }
+        /* ヘッダー内テキストのサイズ調整 */
+        .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 1vw; }
+        .upd-paren { margin-right: 0.8vw; color: #888; }
         .d-upd { width: 1.4vw; height: 2.8vh; margin-right: 0.3vw !important; }
         .colon-upd-box { display: flex; flex-direction: column; gap: 0.6vh; padding: 0 0.3vw; margin-right: 0.3vw; }
-        .dot-upd { width: 0.4vh; height: 0.4vh; }
-        .slash-upd { font-size: 2vh; margin: 0 0.4vw; color: #444; }
+        .dot-upd { width: 0.45vh; height: 0.45vh; }
+        .dot-date-upd { width: 0.45vh; height: 0.45vh; margin-top: 2vh; margin-right: 0.5vw; }
 
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; width: 100%; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; width: 100%; }
@@ -98,14 +98,14 @@
 
     <div id="mid-section" class="bezel">
         <div class="h-row-unified">
-            <div class="h-25">TODAY</div>
+            <div class="h-side">TODAY</div>
             <div class="h-50">
                 <span class="upd-label-main">Sapporo Weather</span>
                 <span class="upd-paren">(Updated</span>
                 <div id="upd-vfd-full" style="display:flex; align-items:center;"></div>
                 <span style="margin-left:0.4vw;" class="upd-paren">)</span>
             </div>
-            <div class="h-25-right">TOMORROW</div>
+            <div class="h-side">TOMORROW</div>
         </div>
         <div class="weather-grid" id="weatherGrid"></div>
     </div>
@@ -115,7 +115,6 @@
     <script>
         const MAP = {'0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],'3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],'6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],'9':[1,1,1,1,0,1,1],'-':[0,0,0,0,0,0,1],' ':[0,0,0,0,0,0,0]};
 
-        // 蓄積して返すように修正
         function build(cls, count = 1) {
             let h = "";
             for (let i = 0; i < count; i++) {
@@ -202,7 +201,7 @@
 
         function initTicker() {
             const ticker = document.getElementById('ticker-text');
-            ticker.innerText = "【INFO】SAPPORO INDUSTRIAL VFD v131.21 // DIGIT SYNC FIXED";
+            ticker.innerText = "【INFO】SAPPORO INDUSTRIAL VFD v131.21 // HEADER UI UNIFIED";
             const duration = (window.innerWidth + ticker.offsetWidth) / 180;
             ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
         }
@@ -212,9 +211,10 @@
             document.getElementById('time-group').innerHTML = build('d-lg', 2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg', 2);
             document.getElementById('sec-group').innerHTML = build('d-sm', 2);
             
+            // 更新日時：スラッシュの代わりにドット(dot-date-upd)を使用
             document.getElementById('upd-vfd-full').innerHTML = 
-                build('d-upd', 2) + '<span class="slash-upd">/</span>' + build('d-upd', 2) + 
-                '<span style="width:0.8vw"></span>' +
+                build('d-upd', 2) + '<div class="dot-unit dot-date-upd on"></div>' + build('d-upd', 2) + 
+                '<span style="width:1.2vw"></span>' +
                 build('d-upd', 2) + '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + build('d-upd', 2);
 
             tick(); setInterval(tick, 1000); fetchWeather(); setInterval(fetchWeather, 600000); initTicker();
