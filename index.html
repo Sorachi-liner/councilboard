@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.52 (v131.21 Based + Amedas)</title>
+    <title>Sapporo Industrial VFD v131.53</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -43,16 +43,10 @@
 
         #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         .h-row-unified { display: flex; height: 7vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
-        .h-25 { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
-        .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
-        .h-25-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
+        .h-25 { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; letter-spacing: 0.2em; }
+        .h-50 { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: 2.8vh; color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); }
+        .h-25-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; letter-spacing: 0.2em; }
         
-        .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 0.8vw; }
-        .upd-paren { margin-right: 0.8vw; }
-        .d-upd { width: 1.68vw; height: 3.32vh; margin-right: 0.4vw !important; }
-        .colon-upd-box { display: flex; flex-direction: column; gap: 0.8vh; padding: 0 0.5vw; margin-right: 0.4vw; }
-        .dot-upd { width: 0.5vh; height: 0.5vh; }
-
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; width: 100%; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; width: 100%; }
         .card:last-child { border-right: none; }
@@ -69,12 +63,11 @@
         .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
         .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
 
-        /* 置換セクション: アメダスLIVE & UPDATED */
         .amedas-section { display: flex; flex-direction: column; flex-grow: 1; background: #000; }
         .amedas-title { background: #1a1a1a; color: #fff; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 1.2em; border-bottom: 1px solid #333; opacity: 0.9; }
         .amedas-flex { display: flex; flex-grow: 1; align-items: center; justify-content: space-around; padding: 0 1vw; }
-        .amedas-item { display: flex; align-items: center; gap: 1vw; }
-        .am-label { font-size: 2vh; color: #888; }
+        .amedas-item { display: flex; align-items: center; gap: 0.8vw; }
+        .am-label { font-size: 1.8vh; color: #888; }
         .d-sub { width: 2.3vw; height: 5.5vh; }
         .dot-sub { width: 0.6vh; height: 0.6vh; margin-top: 4vh; margin-right: 0.3vw; }
 
@@ -91,6 +84,8 @@
         input { background: #000; border: 2px solid #333; color: #fff; padding: 12px; font-family: 'DotGothic16'; width: 100%; font-size: 1.8vh; }
 
         .d-temp { width: 2.8vw; height: 8vh; }
+        .colon-upd-box { display: flex; flex-direction: column; gap: 0.8vh; padding: 0 0.5vw; }
+        .dot-upd { width: 0.5vh; height: 0.5vh; }
     </style>
 </head>
 <body>
@@ -106,12 +101,7 @@
     <div id="mid-section" class="bezel">
         <div class="h-row-unified">
             <div class="h-25">TODAY</div>
-            <div class="h-50">
-                <span class="upd-label-main">Sapporo Weather</span>
-                <span class="upd-paren">(Updated</span>
-                <div id="upd-time-vfd" style="display:flex; align-items:center;"></div>
-                <span style="margin-left:0.4vw;">)</span>
-            </div>
+            <div class="h-50">SAPPORO INDUSTRIAL VFD</div>
             <div class="h-25-right">TOMORROW</div>
         </div>
         <div class="weather-grid" id="weatherGrid">
@@ -121,7 +111,7 @@
                     <div class="w-stats"><div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-0" style="display:flex;"></div></div></div>
                 </div>
                 <div class="amedas-section">
-                    <div class="amedas-title">LIVE AMEDAS (SAPPORO)</div>
+                    <div class="amedas-title">LIVE AMEDAS (SAPPORO 14163)</div>
                     <div class="amedas-flex">
                         <div class="amedas-item"><span class="am-label">TEMP</span><div id="live-t" style="display:flex;"></div><span class="am-label">℃</span></div>
                         <div class="amedas-item"><span class="am-label">WIND</span><div id="live-w" style="display:flex;"></div><span class="am-label">m/s</span></div>
@@ -137,7 +127,7 @@
                     </div>
                 </div>
                 <div class="amedas-section">
-                    <div class="amedas-title">DETAILED DATA UPDATED</div>
+                    <div class="amedas-title">OBSERVATION TIME UPDATED</div>
                     <div class="amedas-flex">
                         <div id="upd-full" style="display:flex; align-items:center; justify-content:center;"></div>
                     </div>
@@ -197,39 +187,41 @@
                 
                 const aRes = await fetch(`https://www.jma.go.jp/bosai/amedas/data/map/${aKey}.json`);
                 const aData = await aRes.json();
-                const sap = aData["14163"] || {temp:[0,0], wind:[0,0]};
-
-                const rd = new Date(fData[0].reportDatetime);
-                draw(document.getElementById('upd-time-vfd'), rd.getHours().toString().padStart(2,'0')+rd.getMinutes().toString().padStart(2,'0'));
+                
+                // 札幌(14163)のデータ抽出を修正 [0]が最新値
+                const sap = aData["14163"];
+                const curTemp = sap && sap.temp ? sap.temp[0] : 0;
+                const curWind = sap && sap.wind ? sap.wind[0] : 0;
 
                 const weatherAreas = fData[0].timeSeries[0].areas[0];
                 const temps = fData[0].timeSeries[2].areas[0].temps;
                 const dt = new Date(latestTime);
 
-                // アイコンとテキスト
                 for(let i=0; i<2; i++) {
                     const w = weatherAreas.weathers[i];
                     document.getElementById(`txt-${i}`).innerText = w;
                     document.getElementById(`ico-${i}`).innerText = w.includes('雪') ? '❄️' : w.includes('雨') ? '☔' : w.includes('曇') ? '☁️' : '☀️';
                 }
 
-                // 予想気温
                 draw(document.getElementById('hi-0'), temps[0]);
                 draw(document.getElementById('hi-1'), temps[3]);
                 draw(document.getElementById('lo-1'), temps[2]);
 
-                // アメダス実況 (Today下部)
-                const valT = sap.temp[0].toFixed(1).split('.');
+                // アメダス実況反映
+                const valT = curTemp.toFixed(1).split('.');
                 draw(document.getElementById('live-t'), valT[0]);
                 draw(document.getElementById('live-t').querySelectorAll('.digit')[3], valT[1]);
 
-                const valW = sap.wind[0].toFixed(1).split('.');
+                const valW = curWind.toFixed(1).split('.');
                 draw(document.getElementById('live-w'), valW[0]);
                 draw(document.getElementById('live-w').querySelectorAll('.digit')[2], valW[1]);
 
-                // 詳細更新日時 (Tomorrow下部)
-                const fullUpd = (dt.getMonth()+1).toString().padStart(2,'0')+dt.getDate().toString().padStart(2,'0')+dt.getHours().toString().padStart(2,'0')+dt.getMinutes().toString().padStart(2,'0');
-                draw(document.getElementById('upd-full'), fullUpd);
+                // 更新日時
+                const mm = (dt.getMonth()+1).toString().padStart(2,'0');
+                const dd = dt.getDate().toString().padStart(2,'0');
+                const hh = dt.getHours().toString().padStart(2,'0');
+                const mi = dt.getMinutes().toString().padStart(2,'0');
+                draw(document.getElementById('upd-full'), mm + dd + hh + mi);
 
             } catch (e) { console.warn("Fetch error", e); }
         }
@@ -244,7 +236,7 @@
         function initTicker() {
             const ticker = document.getElementById('ticker-text');
             const stored = localStorage.getItem(STORAGE_KEY);
-            const data = stored ? JSON.parse(stored) : [{t:"INFO", b:"SAPPORO INDUSTRIAL VFD v131.52 READY"}, {t:"", b:""}];
+            const data = stored ? JSON.parse(stored) : [{t:"NOTICE", b:"SAPPORO INDUSTRIAL VFD v131.53 // AMEDAS SYNC FIXED"}, {t:"", b:""}];
             ticker.innerText = data.map(i => i.t ? `【${i.t}】${i.b}` : i.b).filter(s => s).join(" 　 ");
             const duration = (window.innerWidth + ticker.offsetWidth) / 100;
             ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
@@ -264,11 +256,9 @@
         }
 
         window.onload = () => {
-            // Static Build
             document.getElementById('date-group').innerHTML = build('d-sm',2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm',2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm',2);
             document.getElementById('time-group').innerHTML = build('d-lg',2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg',2);
             document.getElementById('sec-group').innerHTML = build('d-sm',2);
-            document.getElementById('upd-time-vfd').innerHTML = build('d-upd',2)+'<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>'+build('d-upd',2);
             
             document.getElementById('hi-0').innerHTML = build('d-temp',3);
             document.getElementById('hi-1').innerHTML = build('d-temp',3);
