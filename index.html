@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.30</title>
+    <title>Sapporo Industrial VFD v131.31</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -39,25 +39,17 @@
         .dot-time { width: 2.1vw; height: 2.1vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
 
-        /* MID SECTION - .21 STYLE 50/50 HEADER */
+        /* MID SECTION - .21 STYLE HEADER */
         #mid-section { height: 50vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
-        .h-row-unified { display: flex; height: 7vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
+        .h-row-unified { display: flex; height: 8vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
         .h-50 { width: 50%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; letter-spacing: 0.8em; color: #fff; }
         .h-50:first-child { border-right: var(--border-main); }
-
-        /* STATION BAR - Styled like header */
-        .station-bar { height: 6vh; background: #0a0a0a; border-bottom: var(--border-main); display: flex; align-items: center; justify-content: center; gap: 2vw; }
-        .st-label { font-size: 2.2vh; color: #888; letter-spacing: 2px; }
-        .st-vfd-group { display: flex; align-items: center; gap: 0.5vw; }
-        .d-upd { width: 1.5vw; height: 3.1vh; margin-right: 0.2vw !important; }
-        .hyphen-upd { width: 0.8vw; height: 0.4vh; background: var(--led-dim-grad); margin: 0 0.3vw; }
-        .colon-upd-box { display: flex; flex-direction: column; gap: 0.6vh; padding: 0 0.3vw; }
-        .dot-upd { width: 0.4vh; height: 0.4vh; }
 
         /* WEATHER GRID */
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; }
         .card { border-right: var(--border-main); display: flex; flex-direction: column; height: 100%; }
         .card:last-child { border-right: none; }
+        
         .w-main-row { display: flex; align-items: center; height: 65%; }
         .w-visual { width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #222; height: 90%; }
         .w-icon { font-size: 7vh; margin-bottom: 1.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main); }
@@ -70,23 +62,27 @@
         .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
         .d-temp { width: 3vw; height: 8vh; }
 
-        /* AMEDAS LIVE AREA */
+        /* AMEDAS & STATION BARS */
         .amedas-bar { height: 35%; background: #000; border-top: 1px solid #222; display: flex; align-items: center; justify-content: space-around; padding: 0 1vw; }
         .am-item { display: flex; align-items: flex-end; gap: 0.6vw; }
-        .am-tag { font-size: 1.5vh; color: #555; letter-spacing: 1px; }
+        .am-tag { font-size: 1.5vh; color: #666; letter-spacing: 1px; }
+        .am-tag-station { font-size: 1.8vh; color: #888; letter-spacing: 2px; }
         .d-sub { width: 2vw; height: 4.5vh; }
+        
+        /* UPDATED VFD IN TOMORROW SLOT */
+        .d-upd { width: 1.6vw; height: 3.4vh; margin-right: 0.2vw !important; }
+        .hyphen-upd { width: 0.8vw; height: 0.4vh; background: var(--led-dim-grad); margin: 0 0.4vw; }
+        .colon-upd-box { display: flex; flex-direction: column; gap: 0.6vh; padding: 0 0.3vw; }
+        .dot-upd { width: 0.4vh; height: 0.4vh; }
 
         /* BOTTOM TICKER */
         #bot-section { height: 10vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
         .ticker { white-space: nowrap; font-size: 5vh; color: var(--glow-main); line-height: 10vh; position: absolute; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        #admin { position: fixed; bottom: 15px; right: 15px; z-index: 100; opacity: 0.1; transition: 0.4s; }
+        #admin { position: fixed; bottom: 15px; right: 15px; z-index: 100; opacity: 0.05; }
         #admin:hover { opacity: 1; }
         #admin button { background: #111; color: var(--glow-main); border: 1px solid #444; padding: 5px 10px; cursor: pointer; }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
-        #editor { background: #111; border: 2px solid #555; padding: 25px; width: 500px; }
-        input { background: #000; border: 1px solid #333; color: #fff; padding: 12px; width: 100%; margin-bottom: 15px; font-family: 'DotGothic16'; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -104,25 +100,18 @@
             <div class="h-50">TODAY</div>
             <div class="h-50">TOMORROW</div>
         </div>
-        <div class="station-bar">
-            <span class="st-label">STATION: SAPPORO 14163</span>
-            <div class="st-vfd-group">
-                <span class="st-label" style="color:#555">UPDATED:</span>
-                <div id="upd-vfd" style="display:flex; align-items:center;"></div>
-            </div>
-        </div>
         <div class="weather-grid" id="weatherGrid"></div>
     </div>
 
     <div id="bot-section" class="bezel"><div class="ticker" id="ticker-text"></div></div>
 
     <div id="admin"><button onclick="document.getElementById('overlay').style.display='flex'">EDIT</button></div>
-    <div id="overlay">
-        <div id="editor">
-            <input type="text" id="msg-input" placeholder="TICKER MESSAGE...">
+    <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#111; border:2px solid #555; padding:25px; width:500px;">
+            <input type="text" id="msg-input" placeholder="TICKER MESSAGE..." style="background:#000; border:1px solid #333; color:#fff; padding:12px; width:100%; margin-bottom:15px; font-family:'DotGothic16'; font-size:18px;">
             <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button onclick="document.getElementById('overlay').style.display='none'">CANCEL</button>
-                <button onclick="saveMsg()" style="background:var(--glow-main); color:black;">SAVE</button>
+                <button onclick="document.getElementById('overlay').style.display='none'" style="padding:10px; cursor:pointer;">CANCEL</button>
+                <button onclick="saveMsg()" style="background:var(--glow-main); color:black; padding:10px; border:none; cursor:pointer;">SAVE</button>
             </div>
         </div>
     </div>
@@ -151,36 +140,44 @@
                 const aData = await aRes.json();
                 const sap = aData["14163"] || {temp:[0], wind:[0]};
 
-                // STATION BAR Updated Time VFD
-                const dt = new Date(tStr);
-                const updStr = (dt.getMonth()+1).toString().padStart(2,'0') + dt.getDate().toString().padStart(2,'0') + dt.getHours().toString().padStart(2,'0') + dt.getMinutes().toString().padStart(2,'0');
-                document.getElementById('upd-vfd').innerHTML = build('d-upd').repeat(2) + build('d-upd').repeat(2) + '<div class="hyphen-upd on"></div>' + build('d-upd').repeat(2) + '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + build('d-upd').repeat(2);
-
                 const grid = document.getElementById('weatherGrid');
                 const temps = fData[0].timeSeries[2].areas[0].temps; 
                 let html = "";
 
+                // Updated Time for VFD
+                const dt = new Date(tStr);
+                const updStr = (dt.getMonth()+1).toString().padStart(2,'0') + dt.getDate().toString().padStart(2,'0') + dt.getHours().toString().padStart(2,'0') + dt.getMinutes().toString().padStart(2,'0');
+
                 for(let i=0; i<2; i++){
                     const weather = fData[0].timeSeries[0].areas[0].weathers[i];
                     const icon = weather.includes('雪') ? '❄️' : weather.includes('雨') ? '☔' : weather.includes('曇') ? '☁️' : '☀️';
-                    let amedasPart = (i===0) ? `
+                    let footerPart = (i===0) ? `
                         <div class="amedas-bar">
                             <div class="am-item"><span class="am-tag">LIVE TEMP</span><div id="am-t" style="display:flex">${build('d-sub').repeat(3)}</div><span class="am-tag">℃</span></div>
                             <div class="am-item"><span class="am-tag">LIVE WIND</span><div id="am-w" style="display:flex">${build('d-sub').repeat(2)}</div><span class="am-tag">m/s</span></div>
-                        </div>` : `<div class="amedas-bar" style="color:#222; font-size:1.2vh; justify-content:center; letter-spacing:4px;">SAPPORO REGIONAL METEOROLOGICAL OBSERVATORY</div>`;
+                        </div>` : `
+                        <div class="amedas-bar">
+                            <div class="am-item" style="flex-direction:column; align-items:flex-start; gap:0.2vh;">
+                                <span class="am-tag-station">STATION: SAPPORO 14163</span>
+                                <div style="display:flex; align-items:center; gap:0.5vw;">
+                                    <span class="am-tag" style="color:#555">UPDATED:</span>
+                                    <div id="upd-vfd" style="display:flex;">${build('d-upd').repeat(2) + build('d-upd').repeat(2) + '<div class="hyphen-upd on"></div>' + build('d-upd').repeat(2) + '<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>' + build('d-upd').repeat(2)}</div>
+                                </div>
+                            </div>
+                        </div>`;
 
                     html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weather}</div></div>
                         <div class="w-stats">
                             <div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
                             <div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
-                        </div></div>${amedasPart}</div>`;
+                        </div></div>${footerPart}</div>`;
                 }
                 grid.innerHTML = html;
 
                 setTimeout(() => {
-                    draw(document.getElementById('upd-vfd'), updStr);
                     draw(document.getElementById('am-t'), Math.round(sap.temp[0]));
                     draw(document.getElementById('am-w'), Math.round(sap.wind[0]));
+                    draw(document.getElementById('upd-vfd'), updStr);
                     draw(document.getElementById(`hi-0`), temps[0]); draw(document.getElementById(`lo-0`), temps[1]);
                     draw(document.getElementById(`hi-1`), temps[3]); draw(document.getElementById(`lo-1`), temps[2]);
                 }, 50);
@@ -191,7 +188,7 @@
         function saveMsg() { localStorage.setItem('vfd_msg', document.getElementById('msg-input').value); document.getElementById('overlay').style.display='none'; initTicker(); }
         function initTicker() {
             const t = document.getElementById('ticker-text');
-            t.innerText = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD // REALTIME WEATHER MONITORING SYSTEM";
+            t.innerText = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD // REALTIME WEATHER MONITORING SYSTEM // STANDBY";
             const duration = (window.innerWidth + t.offsetWidth)/120;
             t.style.animation = `ticker-anim ${duration}s linear infinite`;
         }
