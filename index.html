@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.53</title>
+    <title>Sapporo Industrial VFD v131.54</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -168,7 +168,8 @@
         function draw(parent, str) {
             if (!parent) return;
             const ds = parent.querySelectorAll('.digit');
-            const ts = String(str).replace(/[^0-9-]/g, '').padStart(ds.length, ' ');
+            // 小数点「.」以外の文字（数字、マイナス、空白）を抽出し、右詰め
+            const ts = String(str).replace(/\./g, '').padStart(ds.length, ' ');
             for(let i=0; i<ds.length; i++) {
                 const pat = MAP[ts[i]] || MAP[' '];
                 ds[i].querySelectorAll('.seg').forEach((s, idx) => { s.classList.toggle('on', !!pat[idx]); });
@@ -188,7 +189,6 @@
                 const aRes = await fetch(`https://www.jma.go.jp/bosai/amedas/data/map/${aKey}.json`);
                 const aData = await aRes.json();
                 
-                // 札幌(14163)のデータ抽出を修正 [0]が最新値
                 const sap = aData["14163"];
                 const curTemp = sap && sap.temp ? sap.temp[0] : 0;
                 const curWind = sap && sap.wind ? sap.wind[0] : 0;
@@ -207,14 +207,16 @@
                 draw(document.getElementById('hi-1'), temps[3]);
                 draw(document.getElementById('lo-1'), temps[2]);
 
-                // アメダス実況反映
-                const valT = curTemp.toFixed(1).split('.');
-                draw(document.getElementById('live-t'), valT[0]);
-                draw(document.getElementById('live-t').querySelectorAll('.digit')[3], valT[1]);
+                // 小数第一位固定表示ロジック
+                const valT = curTemp.toFixed(1).split('.'); // [整数部, 小数部1位]
+                const tTarget = document.getElementById('live-t');
+                draw(tTarget, valT[0]); // 整数部を最初の3桁分に右詰め
+                draw(tTarget.querySelectorAll('.digit')[3], valT[1]); // 4番目のdigitに小数部
 
                 const valW = curWind.toFixed(1).split('.');
-                draw(document.getElementById('live-w'), valW[0]);
-                draw(document.getElementById('live-w').querySelectorAll('.digit')[2], valW[1]);
+                const wTarget = document.getElementById('live-w');
+                draw(wTarget, valW[0]); // 最初の2桁分
+                draw(wTarget.querySelectorAll('.digit')[2], valW[1]); // 3番目のdigit
 
                 // 更新日時
                 const mm = (dt.getMonth()+1).toString().padStart(2,'0');
@@ -236,7 +238,7 @@
         function initTicker() {
             const ticker = document.getElementById('ticker-text');
             const stored = localStorage.getItem(STORAGE_KEY);
-            const data = stored ? JSON.parse(stored) : [{t:"NOTICE", b:"SAPPORO INDUSTRIAL VFD v131.53 // AMEDAS SYNC FIXED"}, {t:"", b:""}];
+            const data = stored ? JSON.parse(stored) : [{t:"NOTICE", b:"SAPPORO INDUSTRIAL VFD v131.54 // PRECISION SYNC READY"}, {t:"", b:""}];
             ticker.innerText = data.map(i => i.t ? `【${i.t}】${i.b}` : i.b).filter(s => s).join(" 　 ");
             const duration = (window.innerWidth + ticker.offsetWidth) / 100;
             ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
@@ -264,6 +266,7 @@
             document.getElementById('hi-1').innerHTML = build('d-temp',3);
             document.getElementById('lo-1').innerHTML = build('d-temp',3);
 
+            // 小数点ドットを配置したレイアウト
             document.getElementById('live-t').innerHTML = build('d-sub',3)+'<div class="dot-unit on dot-sub"></div>'+build('d-sub',1);
             document.getElementById('live-w').innerHTML = build('d-sub',2)+'<div class="dot-unit on dot-sub"></div>'+build('d-sub',1);
             document.getElementById('upd-full').innerHTML = build('d-sub',2)+'<span style="margin:0 0.5vw">/</span>'+build('d-sub',2)+'<span style="margin:0 1vw"> </span>'+build('d-sub',2)+'<div class="colon-upd-box" style="gap:0.5vh; margin:0 0.5vw;"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>'+build('d-sub',2);
