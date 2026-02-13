@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.40 (v131.2 UI Restored)</title>
+    <title>Sapporo Industrial VFD v131.42 (Restored Cycle System)</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,7 +32,7 @@
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; }
 
-        /* CLOCK AREA */
+        /* CLOCK & WEATHER (Base v131.21) */
         #top-section { height: 35.5vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
         .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.91); } 
         .d-lg { width: 13.5vw; height: 28vh; } .d-sm { width: 3.6vw; height: 11vh; }  
@@ -40,7 +40,6 @@
         .dot-time { width: 2.05vw; height: 2.05vw; } 
         .colon-box { display: flex; flex-direction: column; gap: 7.5vh; margin-bottom: 4.8vh; padding: 0 1.08vw; }
 
-        /* MID SECTION */
         #mid-section { height: 53vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
         .h-row-unified { display: flex; height: 8.5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
         .h-50 { width: 50%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; letter-spacing: 1em; }
@@ -51,41 +50,37 @@
         .w-main-row { display: flex; align-items: center; height: 58%; padding-top: 1vh; }
         .w-visual { width: 45%; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #222; height: 100%; }
         .w-icon { font-size: 8.5vh; margin-bottom: 1vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main); }
-        .w-text { font-size: var(--ui-label-size); text-align: center; line-height: 1.3; }
-        .w-stats { width: 55%; display: flex; flex-direction: column; gap: 2.2vh; align-items: flex-end; padding-right: 2vw; justify-content: center; }
+        .w-text { font-size: var(--ui-label-size); text-align: center; }
+        .w-stats { width: 55%; display: flex; flex-direction: column; gap: 2.2vh; align-items: flex-end; padding-right: 2vw; }
 
-        /* FOOTER / UPDATED */
         .footer-bar { height: 42%; background: #000; border-top: 2px solid #222; display: flex; align-items: center; justify-content: space-around; padding: 0 1vw; }
-        .ui-label { font-size: var(--ui-label-size); letter-spacing: 1px; }
-        .colon-upd-box { display: flex; flex-direction: column; justify-content: center; gap: 0.7vh; height: 3.4vh; padding: 0 0.4vw; }
+        .ui-label { font-size: var(--ui-label-size); }
+        .upd-vfd-container { display: flex; align-items: center; }
+        .colon-upd-box { display: flex; flex-direction: column; gap: 0.7vh; padding: 0 0.4vw; }
 
-        /* TICKER SECTION */
+        /* TICKER SYSTEM (v131.2 Style) */
         #bot-section { height: 9vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; }
-        .ticker-container { flex-grow: 1; display: flex; align-items: center; overflow: hidden; height: 100%; }
-        .ticker-title { padding: 0 20px; font-size: 5vh; color: #fff; white-space: nowrap; z-index: 5; background: var(--iron-panel); box-shadow: 15px 0 25px #000; }
-        .ticker-wrap { flex-grow: 1; height: 100%; position: relative; overflow: hidden; }
-        .ticker { white-space: nowrap; font-size: 5.5vh; color: var(--glow-main); line-height: 9vh; position: absolute; }
-        @keyframes ticker-anim { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+        .ticker-wrap { width: 100%; height: 100%; position: relative; overflow: hidden; display: flex; align-items: center; }
+        .ticker { white-space: nowrap; font-size: 5.5vh; color: var(--glow-main); line-height: 9vh; position: absolute; left: 100%; }
+        .t-title { color: #fff; margin-right: 10px; }
 
-        /* v131.2 Restored ADMIN UI */
+        /* CONFIG OVERLAY */
         #admin-trigger { position: fixed; bottom: 10px; right: 10px; opacity: 0.1; cursor: pointer; font-size: 2vh; z-index: 99; }
-        #admin-trigger:hover { opacity: 1; color: var(--glow-main); }
-
+        #admin-trigger:hover { opacity: 1; }
         #admin-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); z-index: 100; 
-            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.98); z-index: 100; display: none; 
+            flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;
         }
-        .admin-box { width: 50vw; background: #111; border: 2px solid #333; padding: 40px; box-shadow: 0 0 50px rgba(255,157,0,0.2); }
-        .admin-box h2 { font-size: 4vh; color: var(--glow-main); margin-bottom: 30px; letter-spacing: 5px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .input-group { margin-bottom: 25px; width: 100%; }
-        .input-group label { display: block; font-size: 2vh; margin-bottom: 10px; color: #888; letter-spacing: 2px; }
-        .admin-input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 15px; font-family: 'DotGothic16'; font-size: 2.5vh; outline: none; }
-        .admin-input:focus { border-color: var(--glow-main); }
-        .admin-btns { display: flex; gap: 20px; margin-top: 20px; }
-        .admin-btns button { flex: 1; padding: 15px; font-family: 'DotGothic16'; font-size: 2vh; cursor: pointer; border: none; }
+        .admin-box { width: 70vw; background: #0a0a0c; border: 2px solid #333; padding: 30px; }
+        .slot-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .slot-row div { flex: 1; }
+        .admin-box h2 { font-size: 3vh; color: var(--glow-main); margin-bottom: 20px; border-bottom: 1px solid #333; }
+        .admin-input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 10px; font-family: 'DotGothic16'; font-size: 2vh; outline: none; }
+        .admin-btns { display: flex; gap: 20px; margin-top: 30px; }
+        .admin-btns button { flex: 1; padding: 15px; cursor: pointer; font-family: 'DotGothic16'; font-size: 2vh; border: none; }
         .btn-apply { background: var(--glow-main); color: #000; }
-        .btn-cancel { background: #333; color: #fff; }
+        .btn-cancel { background: #222; color: #fff; }
     </style>
 </head>
 <body>
@@ -104,28 +99,29 @@
     </div>
 
     <div id="bot-section" class="bezel">
-        <div class="ticker-container">
-            <div class="ticker-title" id="display-title"></div>
-            <div class="ticker-wrap"><div class="ticker" id="ticker-text"></div></div>
-        </div>
+        <div class="ticker-wrap"><div class="ticker" id="ticker-text"></div></div>
     </div>
 
     <div id="admin-trigger" onclick="toggleAdmin(true)">[ CONFIG ]</div>
 
     <div id="admin-overlay">
         <div class="admin-box">
-            <h2>SYSTEM SETTINGS</h2>
-            <div class="input-group">
-                <label>VFD HEADER TITLE</label>
-                <input type="text" id="input-title" class="admin-input">
+            <h2>SYSTEM CONFIG : 3-MESSAGE SLOTS</h2>
+            <div class="slot-row">
+                <div><label>TITLE 1</label><input type="text" id="t1" class="admin-input"></div>
+                <div style="flex: 2;"><label>MESSAGE 1</label><input type="text" id="m1" class="admin-input"></div>
             </div>
-            <div class="input-group">
-                <label>SCROLLING MESSAGE</label>
-                <input type="text" id="input-msg" class="admin-input">
+            <div class="slot-row">
+                <div><label>TITLE 2</label><input type="text" id="t2" class="admin-input"></div>
+                <div style="flex: 2;"><label>MESSAGE 2</label><input type="text" id="m2" class="admin-input"></div>
+            </div>
+            <div class="slot-row">
+                <div><label>TITLE 3</label><input type="text" id="t3" class="admin-input"></div>
+                <div style="flex: 2;"><label>MESSAGE 3</label><input type="text" id="m3" class="admin-input"></div>
             </div>
             <div class="admin-btns">
                 <button class="btn-cancel" onclick="toggleAdmin(false)">CANCEL</button>
-                <button class="btn-apply" onclick="saveMsg()">APPLY CHANGES</button>
+                <button class="btn-apply" onclick="saveAll()">APPLY CONFIG</button>
             </div>
         </div>
     </div>
@@ -141,6 +137,45 @@
                 const pat = MAP[v[i]] || MAP[' '];
                 ds[i].querySelectorAll('.seg').forEach((seg, idx) => seg.classList.toggle('on', !!pat[idx]));
             }
+        }
+
+        // TICKER CYCLE ENGINE
+        let currentSlot = 1;
+        function runTicker() {
+            const t = document.getElementById('ticker-text');
+            const title = localStorage.getItem(`v_t${currentSlot}`) || "NOTICE";
+            const msg = localStorage.getItem(`v_m${currentSlot}`) || "SYSTEM ONLINE";
+            
+            t.innerHTML = `<span class="t-title">【${title}】</span>${msg}`;
+            
+            const wrapWidth = t.parentElement.offsetWidth;
+            const contentWidth = t.offsetWidth;
+            
+            // v131.2 Style animation logic
+            t.style.transition = 'none';
+            t.style.left = '100%';
+            
+            setTimeout(() => {
+                const duration = (wrapWidth + contentWidth) / 100; // Speed factor
+                t.style.transition = `left ${duration}s linear`;
+                t.style.left = `-${contentWidth}px`;
+                
+                setTimeout(() => {
+                    currentSlot = currentSlot >= 3 ? 1 : currentSlot + 1;
+                    runTicker();
+                }, duration * 1000 + 500);
+            }, 50);
+        }
+
+        function toggleAdmin(s) { document.getElementById('admin-overlay').style.display = s ? 'flex' : 'none'; }
+        
+        function saveAll() {
+            for(let i=1; i<=3; i++) {
+                localStorage.setItem(`v_t${i}`, document.getElementById(`t${i}`).value);
+                localStorage.setItem(`v_m${i}`, document.getElementById(`m${i}`).value);
+            }
+            toggleAdmin(false);
+            location.reload();
         }
 
         async function updateAll() {
@@ -167,29 +202,11 @@
                 for(let i=0; i<2; i++){
                     const weather = fData[0].timeSeries[0].areas[0].weathers[i];
                     const icon = weather.includes('雪') ? '❄️' : weather.includes('雨') ? '☔' : weather.includes('曇') ? '☁️' : '☀️';
-                    const hiRow = `<div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>`;
-                    const loRow = (i===0) ? '' : `<div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>`;
-                    
-                    let footer = (i===0) ? `
-                        <div class="footer-bar">
-                            <div class="am-item"><span class="ui-label">LIVE TEMP</span><div id="am-t" style="display:flex">${build('d-sub').repeat(3)}<div class="dot-unit dot-precis on"></div>${build('d-sub')}</div><span class="ui-label">℃</span></div>
-                            <div class="am-item"><span class="ui-label">WIND</span><div id="am-w" style="display:flex">${build('d-sub').repeat(2)}</div><span class="ui-label">m/s</span></div>
-                        </div>` : `
-                        <div class="footer-bar">
-                            <div class="am-item" style="flex-direction:column; align-items:flex-start; gap:0.6vh;">
-                                <span class="ui-label">STATION: SAPPORO 14163</span>
-                                <div class="upd-vfd-container">
-                                    <span class="ui-label">UPDATED:</span>
-                                    <div id="upd-mm" style="display:flex;">${build('d-upd').repeat(2)}</div>
-                                    <div class="dot-unit dot-sep on"></div>
-                                    <div id="upd-dd" style="display:flex;">${build('d-upd').repeat(2)}</div>
-                                    <div class="hyphen-upd on"></div>
-                                    <div id="upd-time" style="display:flex;">${build('d-upd').repeat(2)}<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>${build('d-upd').repeat(2)}</div>
-                                </div>
-                            </div>
-                        </div>`;
                     html += `<div class="card"><div class="w-main-row"><div class="w-visual"><div class="w-icon">${icon}</div><div class="w-text">${weather}</div></div>
-                        <div class="w-stats">${hiRow}${loRow}</div></div>${footer}</div>`;
+                        <div class="w-stats"><div class="temp-line"><div class="label-box hi-label">HI</div><div id="hi-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>
+                        ${i===1?`<div class="temp-line"><div class="label-box lo-label">LO</div><div id="lo-${i}" style="display:flex">${build('d-temp').repeat(3)}</div></div>`:''}</div></div>
+                        <div class="footer-bar">${i===0?`<div class="am-item"><span class="ui-label">LIVE TEMP</span><div id="am-t" style="display:flex">${build('d-sub').repeat(3)}<div class="dot-unit dot-precis on"></div>${build('d-sub')}</div><span class="ui-label">℃</span></div>`:
+                        `<div class="upd-vfd-container"><span class="ui-label">UPDATED:</span><div id="upd-mm" style="display:flex;">${build('d-upd').repeat(2)}</div><div class="dot-unit dot-sep on"></div><div id="upd-dd" style="display:flex;">${build('d-upd').repeat(2)}</div><div class="hyphen-upd on"></div><div id="upd-time" style="display:flex;">${build('d-upd').repeat(2)}<div class="colon-upd-box"><div class="dot-unit dot-upd on"></div><div class="dot-unit dot-upd on"></div></div>${build('d-upd').repeat(2)}</div></div>`}</div></div>`;
                 }
                 grid.innerHTML = html;
 
@@ -197,52 +214,28 @@
                     const tVal = sap.temp[0].toFixed(1);
                     draw(document.getElementById('am-t'), tVal.split('.')[0]);
                     draw(document.getElementById('am-t').querySelectorAll('.digit')[3].parentElement, tVal.split('.')[0] + tVal.split('.')[1]);
-                    draw(document.getElementById('am-w'), Math.round(sap.wind[0]));
-                    draw(document.getElementById('upd-mm'), updMM);
-                    draw(document.getElementById('upd-dd'), updDD);
-                    draw(document.getElementById('upd-time'), updTime);
-                    draw(document.getElementById(`hi-0`), temps[0]); 
-                    draw(document.getElementById(`hi-1`), temps[3]); 
+                    draw(document.getElementById('upd-mm'), updMM); draw(document.getElementById('upd-dd'), updDD); draw(document.getElementById('upd-time'), updTime);
+                    draw(document.getElementById(`hi-0`), temps[0]); draw(document.getElementById(`hi-1`), temps[3]); 
                     if(document.getElementById(`lo-1`)) draw(document.getElementById(`lo-1`), temps[2]);
                 }, 50);
-            } catch(e) { console.error("Update Error:", e); }
-        }
-
-        function toggleAdmin(show) {
-            document.getElementById('admin-overlay').style.display = show ? 'flex' : 'none';
-        }
-
-        function saveMsg() {
-            localStorage.setItem('vfd_title', document.getElementById('input-title').value);
-            localStorage.setItem('vfd_msg', document.getElementById('input-msg').value);
-            initTicker();
-            toggleAdmin(false);
-        }
-
-        function initTicker() {
-            const t = document.getElementById('ticker-text');
-            const dTitle = document.getElementById('display-title');
-            const title = localStorage.getItem('vfd_title') || "SYSTEM:";
-            const msg = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD REBUILT // CORE 131.21 ACTIVE // CONFIG UI RESTORED";
-            dTitle.innerText = title;
-            t.innerText = msg;
-            document.getElementById('input-title').value = title;
-            document.getElementById('input-msg').value = msg;
-            t.style.animation = 'none'; t.offsetHeight;
-            t.style.animation = `ticker-anim ${(window.innerWidth + t.offsetWidth)/100}s linear infinite`;
+            } catch(e) { console.error(e); }
         }
 
         window.onload = () => {
             document.getElementById('date-group').innerHTML = build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2)+'<div class="dot-unit dot-date on"></div>'+build('d-sm').repeat(2);
             document.getElementById('time-group').innerHTML = build('d-lg').repeat(2)+'<div class="colon-box"><div class="dot-unit dot-time on"></div><div class="dot-unit dot-time on"></div></div>'+build('d-lg').repeat(2);
             document.getElementById('sec-group').innerHTML = build('d-sm').repeat(2);
+            for(let i=1; i<=3; i++) {
+                document.getElementById(`t${i}`).value = localStorage.getItem(`v_t${i}`) || "";
+                document.getElementById(`m${i}`).value = localStorage.getItem(`v_m${i}`) || "";
+            }
             setInterval(() => {
                 const n = new Date();
                 draw(document.getElementById('date-group'), String(n.getFullYear()).slice(-2)+String(n.getMonth()+1).padStart(2,'0')+String(n.getDate()).padStart(2,'0'));
                 draw(document.getElementById('time-group'), String(n.getHours()).padStart(2,'0')+String(n.getMinutes()).padStart(2,'0'));
                 draw(document.getElementById('sec-group'), String(n.getSeconds()).padStart(2,'0'));
             }, 1000);
-            updateAll(); initTicker();
+            updateAll(); runTicker();
             setInterval(updateAll, 60000);
         };
     </script>
