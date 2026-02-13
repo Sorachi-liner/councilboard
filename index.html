@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.21 Double-Line</title>
+    <title>Sapporo Industrial VFD v131.21 Restoration</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,12 +13,9 @@
             --glow-main: #ff9d00; 
             --glow-outer: #ff3300;
             --discharge: 0 0 10px var(--glow-core), 0 0 20px var(--glow-main), 0 0 35px var(--glow-outer), 0 0 50px rgba(255, 34, 0, 0.4);
-            --base-ui-size: 2.3vh; 
-            --sub-ui-size: 1.5vh; 
             --header-font-size: 3.3vh; 
             --border-main: 2px solid #333;
             --border-thin: 1px solid #222;
-            /* 二重線用の装飾設定 */
             --double-line: double 3px #444;
             --section-gap: 7.6px solid #333;
         }
@@ -36,39 +33,30 @@
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; }
 
-        /* セクション境界の二重線化 */
+        /* Clock Section */
         #top-section { height: 40vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
+        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.86); } 
+        .d-lg { width: 13.9vw; height: 32vh; } .d-sm { width: 3.63vw; height: 12vh; }  
+        .dot-date { width: 0.7vw; height: 0.7vw; margin-bottom: 0.5vh; margin-right: 1.2vw; } 
+        .dot-time { width: 2.1vw; height: 2.1vw; } 
+        .colon-box { display: flex; flex-direction: column; gap: 7vh; margin-bottom: 5vh; padding: 0 1.2vw; }
+
+        /* .21 Design Unified Grid */
+        #mid-section { height: 46vh; display: flex; flex-direction: column; border-top: var(--section-gap); border-bottom: var(--section-gap); margin: 0 4px; }
+        .h-row-unified { display: flex; height: 7vh; background: #000; border-bottom: var(--double-line); flex-shrink: 0; }
         
-        #mid-section { 
-            height: 46vh; 
-            display: flex; 
-            flex-direction: column; 
-            border-top: var(--section-gap); 
-            border-bottom: var(--section-gap); 
-            margin: 0 4px; 
-            outline: 2px double #444; /* 太い境界線の外側に二重線を配置 */
-            outline-offset: -10px;
-        }
-        
-        .h-row-unified { 
-            display: flex; 
-            height: 7vh; 
-            background: #000; 
-            border-bottom: var(--double-line); /* 見出し下の二重線 */
-            flex-shrink: 0; 
-        }
-        .h-left { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
-        .h-mid  { width: 50%; border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
-        .h-right { width: 25%; font-size: var(--header-font-size); display: flex; align-items: center; justify-content: center; }
-        
+        /* 線を一直線に揃えるための厳密な幅指定 */
+        .w-25 { width: 25%; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); }
+        .w-50 { width: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--header-font-size); border-left: var(--border-main); border-right: var(--border-main); background: #0a0a0a; }
+
         .upd-label-main { color: var(--glow-main); text-shadow: 0 0 10px var(--glow-outer); margin-right: 1vw; }
-        .upd-paren { margin-right: 0.5vw; color: #888; font-size: 2.5vh; }
+        .upd-paren { color: #888; font-size: 2.4vh; margin: 0 0.4vw; }
         .d-upd { width: 1.4vw; height: 2.8vh; margin-right: 0.3vw !important; }
         .dot-date-upd { width: 0.45vh; height: 0.45vh; margin-top: 2vh; margin-right: 0.5vw; }
         .colon-upd-box { display: flex; flex-direction: column; gap: 0.6vh; padding: 0 0.3vw; margin-right: 0.3vw; }
 
         .weather-grid { display: flex; flex-grow: 1; width: 100%; }
-        .card { width: 50%; display: flex; flex-direction: column; height: 100%; border-right: var(--border-main); }
+        .card { width: 50%; display: flex; flex-direction: column; border-right: var(--border-main); }
         .card:last-child { border-right: none; }
 
         .w-main-row { height: 25vh; display: flex; border-bottom: var(--border-main); }
@@ -76,17 +64,18 @@
         .w-stats  { width: 50%; display: flex; flex-direction: column; gap: 1.5vh; align-items: center; justify-content: center; }
 
         .w-icon { height: 9vh; font-size: 7.5vh; margin-bottom: 2.5vh; color: transparent; text-shadow: 0 0 0 white, 0 0 15px var(--glow-main), 0 0 25px var(--glow-outer); }
-        .w-text { height: 7vh; font-size: var(--base-ui-size); text-align: center; color: #fff; padding: 0 1vw; line-height: 1.1; }
+        .w-text { font-size: 2.3vh; text-align: center; padding: 0 1vw; line-height: 1.1; }
         
         .temp-line { display: flex; align-items: center; width: 100%; justify-content: flex-end; padding-right: 1.5vw; }
-        .label-box { font-size: var(--base-ui-size); padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
+        .label-box { font-size: 2.3vh; padding: 2px 6px; min-width: 4.5vw; text-align: center; border-radius: 2px; margin-right: 1vw; }
         .hi-label { color: #000; background: var(--glow-main); box-shadow: 0 0 10px var(--glow-outer); } 
         .lo-label { color: #000; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); } 
 
         .prob-section { display: flex; flex-direction: column; flex-grow: 1; background: #000; }
-        .prob-main-title { background: #1a1a1a; color: #fff; font-size: var(--sub-ui-size); height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 1.2em; border-bottom: var(--double-line); }
+        .prob-main-title { background: #1a1a1a; color: #fff; font-size: 1.5vh; height: 3vh; line-height: 3vh; text-align: center; letter-spacing: 1.2em; border-bottom: var(--double-line); }
         .w-prob-grid { display: grid; grid-template-columns: repeat(4, 1fr); flex-grow: 1; }
         .prob-item { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; border-right: var(--border-thin); }
+        /* 垂直線を一直線にするための「12時」の境界 */
         .prob-item:nth-child(2) { border-right: var(--border-main); }
         .prob-item:last-child { border-right: none; }
         .prob-label { font-size: 2.2vh; color: #fff; } 
@@ -111,14 +100,14 @@
 
     <div id="mid-section" class="bezel">
         <div class="h-row-unified">
-            <div class="h-left">TODAY</div>
-            <div class="h-mid">
+            <div class="w-25">TODAY</div>
+            <div class="w-50">
                 <span class="upd-label-main">Sapporo Weather</span>
                 <span class="upd-paren">(Updated</span>
                 <div id="upd-vfd-full" style="display:flex; align-items:center;"></div>
-                <span style="margin-left:0.4vw;" class="upd-paren">)</span>
+                <span class="upd-paren">)</span>
             </div>
-            <div class="h-right">TOMORROW</div>
+            <div class="w-25">TOMORROW</div>
         </div>
         <div class="weather-grid" id="weatherGrid"></div>
     </div>
@@ -131,9 +120,7 @@
         function build(cls, count = 1) {
             let h = "";
             for (let i = 0; i < count; i++) {
-                h += `<div class="digit ${cls}">`;
-                ['a','b','c','d','e','f','g'].forEach(s => h += `<div class="seg seg-${s} ${['a','d','g'].includes(s)?'seg-h':'seg-v'}"></div>`);
-                h += `</div>`;
+                h += `<div class="digit ${cls}"><div class="seg seg-a seg-h"></div><div class="seg seg-b seg-v"></div><div class="seg seg-c seg-v"></div><div class="seg seg-d seg-h"></div><div class="seg seg-e seg-v"></div><div class="seg seg-f seg-v"></div><div class="seg seg-g seg-h"></div></div>`;
             }
             return h;
         }
@@ -214,7 +201,7 @@
 
         function initTicker() {
             const ticker = document.getElementById('ticker-text');
-            ticker.innerText = "【SYSTEM】SAPPORO INDUSTRIAL VFD v131.21 // DOUBLE-LINE ACCENT ENABLED";
+            ticker.innerText = "【SYSTEM】SAPPORO INDUSTRIAL VFD v131.21 // .21 PROTOCOL FULL RESTORED // GRID: ALIGNED // SEPARATOR: DOUBLE-LINE // STATUS: NOMINAL";
             const duration = (window.innerWidth + ticker.offsetWidth) / 180;
             ticker.style.animation = `ticker-anim ${duration}s linear infinite`;
         }
