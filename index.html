@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Sapporo Industrial VFD v131.35</title>
+    <title>Sapporo Industrial VFD v131.36</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -24,8 +24,8 @@
 
         .bezel { background: var(--iron-panel); box-shadow: inset 0 0 40px #000; margin: 4px; position: relative; flex-shrink: 0; }
         
-        /* DIGIT BASE */
-        .digit { position: relative; flex-shrink: 0; margin-right: 1.06vw; } /* マージンを6%拡大 */
+        /* DIGIT BASE (-2% adjusted) */
+        .digit { position: relative; flex-shrink: 0; margin-right: 1.04vw; } 
         .seg { position: absolute; background: var(--led-dim-grad); border-radius: 1px; }
         .seg-h { width: 74%; height: 10%; left: 13%; } .seg-v { width: 15%; height: 38%; } 
         .seg-a { top: 2%; } .seg-b { top: 6%; right: 2%; } .seg-c { bottom: 6%; right: 2%; }
@@ -34,14 +34,14 @@
         .on { background: var(--glow-core) !important; box-shadow: var(--discharge); z-index: 2; }
         .dot-unit { background: var(--led-dim-grad); border-radius: 50%; }
 
-        /* CLOCK AREA (+6% Width applied) */
+        /* CLOCK AREA (-2% Width applied from 131.35) */
         #top-section { height: 35.5vh; display: flex; align-items: center; justify-content: center; border: 4px solid #151515; }
-        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.92); } 
-        .d-lg { width: 13.8vw; height: 28vh; } /* 13vw * 1.06 */
-        .d-sm { width: 3.7vw; height: 11vh; }  /* 3.5vw * 1.06 */
-        .dot-date { width: 0.8vw; height: 0.8vw; margin-bottom: 0.5vh; margin-right: 1.1vw; } 
-        .dot-time { width: 2.1vw; height: 2.1vw; } 
-        .colon-box { display: flex; flex-direction: column; gap: 7.5vh; margin-bottom: 4.8vh; padding: 0 1.1vw; }
+        .clock-wrapper { display: flex; align-items: flex-end; transform: scale(0.91); } 
+        .d-lg { width: 13.5vw; height: 28vh; } 
+        .d-sm { width: 3.6vw; height: 11vh; }  
+        .dot-date { width: 0.78vw; height: 0.78vw; margin-bottom: 0.5vh; margin-right: 1.08vw; } 
+        .dot-time { width: 2.05vw; height: 2.05vw; } 
+        .colon-box { display: flex; flex-direction: column; gap: 7.5vh; margin-bottom: 4.8vh; padding: 0 1.08vw; }
 
         /* HEADER */
         .h-row-unified { display: flex; height: 8.5vh; background: #000; border-bottom: var(--border-main); flex-shrink: 0; }
@@ -80,7 +80,7 @@
         .dot-upd { width: 0.4vh; height: 0.4vh; }
         .dot-precis { width: 0.8vh; height: 0.8vh; margin: 4vh 0.2vw 0 0; }
 
-        /* TICKER / ADMIN (.21 STYLE) */
+        /* TICKER / ADMIN */
         #bot-section { height: 9vh; display: flex; align-items: center; border: 4px solid #151515; overflow: hidden; position: relative; }
         .ticker { white-space: nowrap; font-size: 5.5vh; color: var(--glow-main); line-height: 9vh; position: absolute; }
         @keyframes ticker-anim { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
@@ -187,7 +187,6 @@
             } catch(e) { console.error(e); }
         }
 
-        /* .21 Style Admin Function */
         function editMsg() {
             const current = localStorage.getItem('vfd_msg') || "";
             const input = window.prompt("INPUT NEW TICKER MESSAGE:", current);
@@ -199,7 +198,7 @@
 
         function initTicker() {
             const t = document.getElementById('ticker-text');
-            t.innerText = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD // UNIT ACTIVE // MONITORING DATA FROM JMA";
+            t.innerText = localStorage.getItem('vfd_msg') || "SAPPORO INDUSTRIAL VFD // SYSTEM ONLINE // DATA SOURCE: JMA";
             t.style.animation = 'none'; t.offsetHeight;
             t.style.animation = `ticker-anim ${(window.innerWidth + t.offsetWidth)/100}s linear infinite`;
         }
