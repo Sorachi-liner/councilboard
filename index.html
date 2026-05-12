@@ -3,36 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>気象情報ダッシュボード</title>
+    <title>アメダス・天気概況ダッシュボード</title>
     <style>
-        :root {
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --primary-color: #003366;
-            --accent-color: #e67e22;
-        }
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 20px; color: var(--primary-color); }
-        
-        .card { background: var(--card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .card-title { font-size: 1.2rem; font-weight: bold; border-left: 5px solid var(--primary-color); padding-left: 10px; margin-bottom: 15px; }
-        
-        .overview-text { line-height: 1.6; white-space: pre-wrap; font-size: 0.95rem; }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .stat-item { text-align: center; padding: 10px; background: #f8f9fa; border-radius: 5px; }
-        .stat-label { font-size: 0.8rem; color: #666; }
-        .stat-value { font-size: 1.4rem; font-weight: bold; }
-        .high { color: #d35400; }
-        .low { color: #2980b9; }
-
+        :root { --bg: #f5f7fa; --card: #ffffff; --primary: #2c3e50; --accent: #3498db; }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; }
+        .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h2 { font-size: 1.1rem; margin-top: 0; border-left: 4px solid var(--accent); padding-left: 10px; }
+        .overview { line-height: 1.7; white-space: pre-wrap; font-size: 0.95rem; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+        .temp-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .temp-card { flex: 1; text-align: center; padding: 15px; border-radius: 8px; color: white; }
+        .max { background: #e74c3c; }
+        .min { background: #3498db; }
+        .temp-val { font-size: 1.8rem; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border-bottom: 1px solid #eee; padding: 12px 8px; text-align: center; }
-        th { background-color: #f8f9fa; font-size: 0.9rem; }
-        tr:hover { background-color: #fafafa; }
-        
-        .loading { text-align: center; padding: 50px; font-style: italic; color: #888; }
+        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-size: 0.85rem; }
+        .loading { text-align: center; color: #888; padding: 20px; }
     </style>
 </head>
 <body>
@@ -40,30 +28,27 @@
 <div class="container">
     <header>
         <h1>気象ダッシュボード</h1>
-        <p id="ref-time">データ取得中...</p>
+        <p id="update-time">データ取得中...</p>
     </header>
 
     <div class="card">
-        <div class="card-title">天気概況 (石狩・空知・後志地方)</div>
-        <div id="weather-overview" class="overview-text">読み込み中...</div>
+        <h2>天気概況</h2>
+        <div id="weather-text" class="overview">読み込み中...</div>
     </div>
 
-    <div class="card">
-        <div class="card-title">本日の気温（アメダス札幌）</div>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-label">最高気温</div>
-                <div id="temp-max" class="stat-value high">--.-</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">最低気温</div>
-                <div id="temp-min" class="stat-value low">--.-</div>
-            </div>
+    <div class="temp-row">
+        <div class="temp-card max">
+            <div>最高気温 (60分間)</div>
+            <div id="max-t" class="temp-val">--.-℃</div>
+        </div>
+        <div class="temp-card min">
+            <div>最低気温 (60分間)</div>
+            <div id="min-t" class="temp-val">--.-℃</div>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-title">アメダス 60分前までの推移</div>
+        <h2>アメダス (10分おき/直近60分)</h2>
         <table id="amedas-table">
             <thead>
                 <tr>
@@ -74,127 +59,95 @@
                 </tr>
             </thead>
             <tbody id="amedas-body">
-                </tbody>
+                <tr><td colspan="4" class="loading">取得中...</td></tr>
+            </tbody>
         </table>
     </div>
 </div>
 
 <script>
-/**
- * 設定
- */
-const STATION_ID = "14163"; // 札幌
-const FORECAST_URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json";
-const AMEDAS_LATEST = "https://www.jma.go.jp/bosai/amedas/data/latest_time.json";
+const STATION_NO = "14163"; // 札幌
+const FORECAST_JSON = "https://www.jma.go.jp/bosai/forecast/data/forecast/016000.json";
+const AMEDAS_BASE_URL = "https://api.cultivationdata.net/amds";
 
-async function init() {
+// 気象庁のデータは直接fetchするとCORSエラーになる場合があるため、プロキシを通すか検討が必要ですが
+// まずは直接取得を試みます。
+async function fetchWeather() {
     try {
-        await Promise.all([
-            fetchForecast(),
-            fetchAMeDAS()
-        ]);
-    } catch (e) {
-        console.error("データ取得エラー:", e);
-    }
-}
+        // 1. 天気概況の取得
+        const fRes = await fetch(FORECAST_JSON);
+        const fData = await fRes.json();
+        const overview = fData[0].timeSeries[0].areas[0].weathers[0];
+        document.getElementById('weather-text').innerText = overview;
 
-/**
- * 天気概況を取得
- */
-async function fetchForecast() {
-    const res = await fetch(FORECAST_URL);
-    const data = await res.json();
-    
-    // 気象庁のJSON構造から概況テキストを取得 (通常[0].reportDatetimeなどが含まれる)
-    // 今回は提供されたURLに含まれる予報文言を抽出
-    const overviewArea = data[0].timeSeries[0].areas[0];
-    const weatherText = overviewArea.weathers ? overviewArea.weathers[0] : "概況データなし";
-    
-    document.getElementById('weather-overview').innerText = 
-        `${data[0].publishingOffice}発表\n報告日時: ${new Date(data[0].reportDatetime).toLocaleString()}\n\n【天気予報】\n${weatherText}`;
-}
+        // 2. アメダスデータの取得 (直近60分 = 7回分)
+        const now = new Date();
+        const dataPoints = [];
+        
+        // 10分刻みの時間を7点分生成
+        for (let i = 0; i < 7; i++) {
+            const target = new Date(now.getTime() - (i * 10 * 60 * 1000));
+            // 分を10分単位に切り捨て
+            target.setMinutes(Math.floor(target.getMinutes() / 10) * 10);
+            target.setSeconds(0);
 
-/**
- * アメダスデータを取得
- */
-async function fetchAMeDAS() {
-    // 1. 最新のデータ時刻を取得
-    const timeRes = await fetch(AMEDAS_LATEST);
-    const latestJson = await timeRes.json();
-    const latestDateStr = latestJson; // e.g. "20231027151000"
-    
-    // 日付部分を抽出 (YYYYMMDD)
-    const datePart = latestDateStr.substring(0, 8);
-    const amedasUrl = `https://www.jma.go.jp/bosai/amedas/data/point/${STATION_ID}/${datePart}.json`;
-
-    // 2. その日の全データを取得
-    const amedasRes = await fetch(amedasUrl);
-    const amedasData = await amedasRes.json();
-
-    // 3. データを整理
-    const times = Object.keys(amedasData).sort().reverse(); // 最新順
-    
-    // 最高・最低気温の算出 (当日分)
-    let maxTemp = -99;
-    let minTemp = 99;
-    for (let t in amedasData) {
-        const val = amedasData[t].temp[0];
-        if (val !== null) {
-            if (val > maxTemp) maxTemp = val;
-            if (val < minTemp) minTemp = val;
+            const ts = formatDT(target);
+            dataPoints.push(ts);
         }
-    }
-    document.getElementById('temp-max').innerText = maxTemp === -99 ? "--" : maxTemp.toFixed(1) + "℃";
-    document.getElementById('temp-min').innerText = minTemp === 99 ? "--" : minTemp.toFixed(1) + "℃";
 
-    // 4. 直近60分のテーブル作成 (10分おき 7件分)
+        // 全件並列でリクエスト
+        const results = await Promise.all(dataPoints.map(dt => 
+            fetch(`${AMEDAS_BASE_URL}?no=${STATION_NO}&dt=${dt}`).then(r => r.json())
+        ));
+
+        renderAmedas(results);
+
+    } catch (e) {
+        console.error(e);
+        document.getElementById('weather-text').innerText = "データの取得に失敗しました。";
+    }
+}
+
+function formatDT(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const h = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${y}${m}${day}${h}${min}`;
+}
+
+function renderAmedas(dataList) {
     const tbody = document.getElementById('amedas-body');
     tbody.innerHTML = '';
     
-    // 60分前までの時刻リストを作成
-    for (let i = 0; i < 7; i++) {
-        const currentTimeKey = getOffsetTimeKey(latestDateStr, i * 10);
-        const record = amedasData[currentTimeKey];
+    let temps = [];
 
-        if (record) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${currentTimeKey.substring(8, 10)}:${currentTimeKey.substring(10, 12)}</td>
-                <td>${record.temp[0] !== null ? record.temp[0].toFixed(1) : '--'}</td>
-                <td>${record.precipitation10m[0] !== null ? record.precipitation10m[0].toFixed(1) : '0.0'}</td>
-                <td>${record.wind[0] !== null ? record.wind[0].toFixed(1) : '--'}</td>
-            `;
-            tbody.appendChild(tr);
-        }
+    dataList.forEach(item => {
+        if (!item || !item.temp) return;
+        
+        const tr = document.createElement('tr');
+        const timeStr = item.dt.substring(8,10) + ":" + item.dt.substring(10,12);
+        
+        tr.innerHTML = `
+            <td>${timeStr}</td>
+            <td>${item.temp}</td>
+            <td>${item.prec}</td>
+            <td>${item.wind}</td>
+        `;
+        tbody.appendChild(tr);
+        temps.push(item.temp);
+    });
+
+    if (temps.length > 0) {
+        document.getElementById('max-t').innerText = Math.max(...temps).toFixed(1) + "℃";
+        document.getElementById('min-t').innerText = Math.min(...temps).toFixed(1) + "℃";
     }
     
-    document.getElementById('ref-time').innerText = `最終更新: ${latestDateStr.substring(8, 10)}時${latestDateStr.substring(10, 12)}分`;
+    document.getElementById('update-time').innerText = "最終更新: " + new Date().toLocaleTimeString();
 }
 
-/**
- * 基準時刻からN分前のキー(YYYYMMDDHHMMSS)を生成する補助関数
- */
-function getOffsetTimeKey(baseStr, minutesOffset) {
-    const year = baseStr.substring(0, 4);
-    const month = baseStr.substring(4, 6) - 1;
-    const day = baseStr.substring(6, 8);
-    const hour = baseStr.substring(8, 10);
-    const minute = baseStr.substring(10, 12);
-    
-    const date = new Date(year, month, day, hour, minute);
-    date.setMinutes(date.getMinutes() - minutesOffset);
-    
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    const hh = String(date.getHours()).padStart(2, '0');
-    const mm = String(date.getMinutes()).padStart(2, '0');
-    
-    return `${y}${m}${d}${hh}${mm}00`;
-}
-
-init();
+fetchWeather();
 </script>
-
 </body>
 </html>
